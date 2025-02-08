@@ -1,99 +1,99 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
 :global {
-    #workbenchPageContent, 
-    .CanvasComponent.LCS .CanvasZone {
-        max-width: 100% !important;
-    }
+  #workbenchPageContent, .CanvasComponent.LCS .CanvasZone {
+    max-width: 100% !important;
+  }
+
 }
 
+
 .container {
-    padding: 20px;
+  padding: 20px;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .searchBar {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .searchInput {
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 8px;
-    width: 300px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  width: 300px;
 }
 
 .searchButton {
-    display: flex;
-    align-items: center;
-    background-color: #0078d4;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  background-color: #0078d4;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .searchIcon {
-    margin-right: 4px;
-    color: white;
-    width: 16px;
-    height: 16px;
+  margin-right: 4px;
+  color: white;
+  width: 16px;
+  height: 16px;
 }
 
 .loading,
 .error {
-    padding: 10px;
-    text-align: center;
-    font-size: 14px;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
 }
 
 .loading {
-    color: #0078d4;
+  color: #0078d4;
 }
 
 .error {
-    color: red;
+  color: red;
 }
 
 .tableHeader {
-    display: flex; /* Flexbox para el ajuste horizontal */
-    background-color: #f3f2f1;
-    border-bottom: 1px solid #ddd;
-    font-weight: bold;
-    padding: 8px 0;
-    align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  padding: 8px 0;
+  align-items: center;
 }
 
 .tableHeaderCell {
-    padding: 4px 12px;
-    text-align: left;
-    flex: 1; /* Permite que las celdas se expandan */
-    min-width: 100px; /* Ancho mínimo para evitar colapso */
+  padding: 4px 12px;
+  text-align: left;
 }
+
 
 .groupHeader {
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    padding: 10px;
-    background-color: #f3f2f1;
-    border-bottom: 1px solid #ddd;
-    cursor: pointer;
-    margin-left: calc(var(--group-nesting-depth, 0) * 20px);
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  margin-left: calc(var(--group-nesting-depth, 0) * 20px); /* Espaciado dinámico */
 }
-
 .detailsRow {
     display: grid;
-    grid-template-columns: auto repeat(auto-fit, minmax(150px, 1fr)); /* Ajuste automático */
+    grid-template-columns: 40px repeat(auto-fit, minmax(150px, 1fr));
     padding: 4px 12px;
     align-items: center;
     border-bottom: 1px solid #eee;
@@ -106,44 +106,39 @@
 }
 
 .tableCell {
-    padding: 8px;
+    padding: 4px 8px;
     text-align: left;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
-    min-width: 100px;
-    max-width: 300px;
-    display: flex; /* Añadido para el ajuste vertical */
-    align-items: flex-start; /* Alinea el contenido en la parte superior */
 }
 
+
+
 .groupIcon {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
 .groupFooter {
-    padding: 10px;
-    font-size: 14px;
-    color: #666;
-    background-color: #f4f4f4;
-    border-top: 1px solid #ddd;
-    text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  color: #666;
+  background-color: #f4f4f4;
+  border-top: 1px solid #ddd;
+  text-align: center;
 }
 
 .fileName {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: pre-wrap;
-    word-break: break-word;
+  display: flex; /* Mantenemos flex para el icono y el texto */
+  align-items: center; /* Alineación vertical centrada */
+  font-size: 14px;
+  color: #333;
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Agrega puntos suspensivos si se recorta */
+  white-space: pre-wrap; /* Permite que el texto se ajuste a varias líneas */
+  word-break: break-word; /* Rompe palabras largas para evitar desbordamiento */
 }
 
 .fileIcon {
-    margin-right: 8px;
-    width: 20px;
-    height: 20px;
-    color: #0078d4;
+  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  color: #0078d4;
 }
