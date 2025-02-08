@@ -30,7 +30,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     columnas,
     columnasAgrupacion,
     biblioteca,
-    ordenColumna = 'Created',
+    ordenColumna = 'LinkFilename',
     direccionOrden = 'asc',
 }) => {
     const _services = new spservices(SpContext);
@@ -44,6 +44,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const selection = new Selection();
 
     useEffect(() => {
+        debugger;
         cargarDocumentos(paginaActual);
     }, [paginaActual]);
 
@@ -129,7 +130,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                 props.onToggleCollapse!(props.group!);
             };
     
-            debugger;
+            //debugger;
             let datos = props.group.level;
             let agrupador = columnasAgrupacion[datos]
             let campoAgrupador = columnas.filter(x => x.internalName == agrupador)[0];
@@ -224,7 +225,7 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
                         className={styles.searchInput}
                         value={searchTerm}
                         onChange={async (e)  => {
-                           
+                            debugger;
                             setSearchTerm(e.target.value);
                             const startRow = (paginaActual - 1) * registrosPorPagina;
                             const resultados = await _services.obtenerDocumentos(
