@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "nodeVersion": "16.16.0",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "listview-webparts",
+    "libraryId": "1b83c6e6-1e17-47f5-8876-d6e30ff73af9",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "listview-webparts",
+    "solutionShortDescription": "listview-webparts description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

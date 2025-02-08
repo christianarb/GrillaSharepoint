@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "e35eaa54-03b7-422d-99ad-82e0cbc08e19",
+  "alias": "grillaTreeviewWebPart",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+
+  // Configuración de seguridad para scripts personalizados
+  "requiresCustomScript": false,
+
+  // Plataformas donde se puede alojar el WebPart
+  "supportedHosts": [
+    "SharePointWebPart",
+    "TeamsPersonalApp",
+    "TeamsTab",
+    "SharePointFullPage"
+  ],
+
+  // Soporte para variantes de temas y ancho completo
+  "supportsThemeVariants": true,
+  "supportsFullBleed": true,
+
+  // Configuración predefinida del WebPart
+  "preconfiguredEntries": [
+    {
+      "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+      "group": {
+        "default": "Advanced"
+      },
+      "title": {
+        "default": "Grilla-Treeview"
+      },
+      "description": {
+        "default": "Grilla-Treeview description"
+      },
+      "officeFabricIconFontName": "Page",
+      "properties": {
+        "description": "Grilla-Treeview",
+        "columnas": "[{\"internalName\": \"LinkFilename\", \"displayName\": \"Nombre\"}, {\"internalName\": \"sgdCompania\", \"displayName\": \"Compañía\"}, {\"internalName\": \"sgdBU\", \"displayName\": \"Unidad de Negocio\"}, {\"internalName\": \"sgdTipoDocumento\", \"displayName\": \"Tipo de Documento\"}]",
+        "columnaAgrupador": "sgdBU",
+        "biblioteca": "Documentos Públicos",
+        "columnasAgrupacion":"[\"sgdCompania\", \"sgdBU\"]"
+      }
+    }
+  ]
+}

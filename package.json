@@ -1,0 +1,72 @@
+{
+  "name": "listview-webparts",
+  "version": "2.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=16.13.0 <17.0.0 || >=18.17.1 <19.0.0"
+  },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "DISABLE_ESLINT_PLUGIN=true gulp bundle",
+    "clean": "DISABLE_ESLINT_PLUGIN=true gulp clean",
+    "test": "DISABLE_ESLINT_PLUGIN=true gulp test",
+    "eslint:disable": "REACT_APP_DEV_DISABLE_ESLINT=true"
+  },
+  "dependencies": {
+    "@fluentui/example-data": "^8.4.25",
+    "@fluentui/react": "^8.122.9",
+    "@fluentui/react-components": "^9.51.1",
+    "@fluentui/react-hooks": "^8.8.16",
+    "@microsoft/sp-component-base": "1.18.2",
+    "@microsoft/sp-core-library": "1.18.2",
+    "@microsoft/sp-lodash-subset": "1.18.2",
+    "@microsoft/sp-office-ui-fabric-core": "1.18.2",
+    "@microsoft/sp-property-pane": "1.18.2",
+    "@microsoft/sp-webpart-base": "1.18.2",
+    "@pnp/common": "^2.15.0",
+    "@pnp/logging": "^3.24.0",
+    "@pnp/odata": "^2.15.0",
+    "@pnp/sp": "2.5.0",
+    "@pnp/spfx-controls-react": "3.14.0",
+    "@pnp/spfx-property-controls": "^3.13.0",
+    "@types/microsoft-ajax": "0.0.33",
+    "@types/mocha": ">=2.2.33 <2.6.0",
+    "@types/sharepoint": "^2013.1.6",
+    "docx": "^8.5.0",
+    "linqts": "^1.15.0",
+    "lucide-react": "^0.475.0",
+    "moment": "^2.30.1",
+    "office-ui-fabric-react": "^7.204.0",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "react-icons": "^5.4.0",
+    "react-js-pagination": "^3.0.3",
+    "react-spinners": "^0.13.8",
+    "throttle-debounce": "^5.0.0",
+    "tslib": "2.3.1"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-config-spfx": "1.18.2",
+    "@microsoft/eslint-plugin-spfx": "1.18.2",
+    "@microsoft/rush-stack-compiler-4.7": "^0.1.0",
+    "@microsoft/sp-build-web": "1.18.2",
+    "@microsoft/sp-module-interfaces": "1.18.2",
+    "@rushstack/eslint-config": "2.5.1",
+    "@types/file-saver": "^2.0.7",
+    "@types/react": "17.0.45",
+    "@types/react-dom": "17.0.17",
+    "@types/react-js-pagination": "^3.0.7",
+    "@types/throttle-debounce": "^5.0.2",
+    "@types/webpack-env": "~1.15.2",
+    "ajv": "^6.12.5",
+    "eslint": "8.7.0",
+    "eslint-plugin-react-hooks": "4.3.0",
+    "file-saver": "^2.0.5",
+    "fs": "^0.0.1-security",
+    "gulp": "4.0.2",
+    "typescript": "4.7.4"
+  },
+  "browser": {
+    "fs": false
+  }
+}
