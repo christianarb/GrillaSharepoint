@@ -78,6 +78,7 @@
 .tableHeaderCell {
   padding: 4px 12px;
   text-align: left;
+  color: #140a9a
 }
 
 
@@ -86,7 +87,7 @@
   align-items: center;
   font-weight: bold;
   padding: 10px;
-  background-color: #f3f2f1;
+  background-color: #fffefd;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
   margin-left: calc(var(--group-nesting-depth, 0) * 20px); /* Espaciado dinámico */

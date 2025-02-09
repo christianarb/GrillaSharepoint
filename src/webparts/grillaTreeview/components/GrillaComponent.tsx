@@ -7,6 +7,7 @@ import { Folder, FolderOpen, FileText, Search } from 'lucide-react';
 import styles from './Grilla.module.scss';
 import { spservices } from "../../../SPServices/spservices";
 
+
 interface Documento {
     [key: string]: any;
 }
@@ -124,16 +125,19 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const { items, groups } = agruparDocumentosDinamico();
 
     const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
-
         if (props && props.group) {
             const toggleCollapse = (): void => {
                 props.onToggleCollapse!(props.group!);
             };
     
-            //debugger;
             let datos = props.group.level;
-            let agrupador = columnasAgrupacion[datos]
+            let agrupador = columnasAgrupacion[datos];
             let campoAgrupador = columnas.filter(x => x.internalName == agrupador)[0];
+    
+            // Ruta de la imagen
+            const imagePath = props.group?.isCollapsed
+              ? require('../assets/folder-close.png')
+              : require('../assets/folder-open.png');
     
             return (
                 <div
@@ -141,15 +145,12 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                     onClick={toggleCollapse}
                     style={{ '--group-nesting-depth': props.group!.level } as React.CSSProperties}
                 >
-                    {props.group?.isCollapsed? (
-                        <Folder className={styles.groupIcon} />
-                    ): (
-                        <FolderOpen className={styles.groupIcon} />
-                    )}
+                    {/* Mostrar la imagen */}
+                    <img src={imagePath} alt={props.group?.isCollapsed? 'Carpeta cerrada': 'Carpeta abierta'} className={styles.groupIcon} />
     
                     <span>
-                        <b style={{ color: 'steelblue' }}>{campoAgrupador.displayName}:</b>{" "}
-                        <strong style={{ color: 'black', fontWeight: 'bold' }}>
+                        <b style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</b>{" "}
+                        <strong style={{ color: '#444444', fontWeight: 'bold' }}>
                             {props.group?.name} ({props.group?.count})
                         </strong>
                     </span>
@@ -201,9 +202,13 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
 
     const getFileIcon = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
+        const imagePath =  require('../assets/icpdf.png');
+  
+
         switch (extension) {
             case 'pdf':
-                return <AiFillFilePdf className={styles.fileIcon} />;
+                return <img src={imagePath} className={styles.fileIcon} />
+    
             case 'doc':
             case 'docx':
                 return <AiFillFileWord className={styles.fileIcon} />;
@@ -254,7 +259,7 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
                     <div className={styles.tableHeader}>
                         {columnas.map((col) => (
                             <div key={col.internalName} className={styles.tableHeaderCell}>
-                                {col.displayName}
+                                {col.displayName.toString().toUpperCase()}
                             </div>
                         ))}
                     </div>
