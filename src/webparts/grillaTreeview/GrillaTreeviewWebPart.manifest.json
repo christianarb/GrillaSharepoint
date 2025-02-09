@@ -40,7 +40,7 @@
         "columnas": "[{\"internalName\": \"LinkFilename\", \"displayName\": \"Nombre\"}, {\"internalName\": \"sgdCompania\", \"displayName\": \"Compañía\"}, {\"internalName\": \"sgdBU\", \"displayName\": \"Unidad de Negocio\"}, {\"internalName\": \"sgdTipoDocumento\", \"displayName\": \"Tipo de Documento\"}]",
         "columnaAgrupador": "sgdBU",
         "biblioteca": "Documentos Públicos",
-        "columnasAgrupacion":"[\"sgdCompania\", \"sgdBU\"]"
+        "columnasAgrupacion":"[\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
       }
     }
   ]
