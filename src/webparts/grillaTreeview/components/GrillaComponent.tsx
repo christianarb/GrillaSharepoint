@@ -77,34 +77,28 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         const items: Documento[] = [];
         const groups: IGroup[] = [];
         let startIndex = 0;
-
-        const crearGruposRecursivos = (
-            docs: Documento[],
-            campos: string[],
-            nivel: number,
-            parentKey: string = ''
-        ): IGroup[] => {
-            if (campos.length === 0) return [];
-
-            const campoActual = campos[0];
-            const agrupado = docs.reduce((acc, doc) => {
+    
+        const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
+            if (campoIndex >= campos.length) return [];
+    
+            const campoActual = campos[campoIndex];
+            const agrupado = new Map<string, Documento[]>();
+    
+            docs.forEach(doc => {
                 const clave = doc[campoActual] || `Sin ${campoActual}`;
-                if (!acc[clave]) acc[clave] = [];
-                acc[clave].push(doc);
-                return acc;
-            }, {} as Record<string, Documento[]>);
-
-            return Object.keys(agrupado).map((clave, index) => {
-               
-                const documentosGrupo = agrupado[clave];
+                if (!agrupado.has(clave)) agrupado.set(clave, []);
+                agrupado.get(clave)!.push(doc);
+            });
+    
+            const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
                 const groupKey = `${parentKey}-${clave}-${index}`;
                 const startIndexBackup = startIndex;
-
-                const subGrupos = crearGruposRecursivos(documentosGrupo, campos.slice(1), nivel + 1, groupKey);
-
-                items.push(...documentosGrupo);
+    
+                const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
+    
+                documentosGrupo.forEach(doc => items.push(doc)); // push más eficiente
                 startIndex += documentosGrupo.length;
-
+    
                 return {
                     key: groupKey,
                     name: clave,
@@ -115,9 +109,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                     children: subGrupos.length > 0 ? subGrupos : undefined,
                 };
             });
+            return grupos;
         };
-
-        const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0);
+    
+        const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
         groups.push(...gruposRaiz);
         return { items, groups };
     };
