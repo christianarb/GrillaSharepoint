@@ -32,6 +32,7 @@
     "@types/microsoft-ajax": "0.0.33",
     "@types/mocha": ">=2.2.33 <2.6.0",
     "@types/sharepoint": "^2013.1.6",
+    "ag-grid-react": "^33.1.1",
     "docx": "^8.5.0",
     "linqts": "^1.15.0",
     "lucide-react": "^0.475.0",
@@ -42,6 +43,7 @@
     "react-icons": "^5.4.0",
     "react-js-pagination": "^3.0.3",
     "react-spinners": "^0.13.8",
+    "react-table": "^7.8.0",
     "throttle-debounce": "^5.0.0",
     "tslib": "2.3.1"
   },

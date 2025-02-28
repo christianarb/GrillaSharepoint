@@ -91,139 +91,141 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
   
  
 
-    const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } => {
-        const { items, groups } = useMemo(() => {
-            const items: Documento[] = [];
-            const groups: IGroup[] = [];
-            let startIndex = 0;
-    
-            // Función recursiva para crear los grupos
-            const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
-                // Si hemos agotado los campos, terminamos la recursión
-                if (campoIndex >= campos.length) return [];
-    
-                const campoActual = campos[campoIndex];
-                const agrupado = new Map<string, Documento[]>();
-    
-                // Agrupar documentos por el campo actual
-                docs.forEach(doc => {
-                    const clave = doc[campoActual] || `Sin ${campoActual}`;
-                    if (!agrupado.has(clave)) agrupado.set(clave, []);
-                    agrupado.get(clave)?.push(doc);
-                });
-    
-                // Mapear las claves agrupadas en los grupos y manejar subgrupos recursivos
-                const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
-                    const groupKey = `${parentKey}-${clave}-${index}`;
-                    const startIndexBackup = startIndex;
-    
-                    // Llamada recursiva para crear subgrupos
-                    const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
-    
-                    // Añadir los documentos al array 'items'
-                    documentosGrupo.forEach(doc => items.push(doc));  // push eficiente
-                    startIndex += documentosGrupo.length;
-    
-                    return {
-                        key: groupKey,
-                        name: clave,
-                        startIndex: startIndexBackup,
-                        count: documentosGrupo.length,
-                        level: nivel,
-                        isCollapsed: true,
-                        children: subGrupos.length > 0 ? subGrupos : undefined,
-                    };
-                });
-    
-                // Ordenar los grupos por su clave de agrupación (puedes cambiar esto si necesitas otro criterio)
-                return grupos.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar por nombre
-            };
-    
-            // Iniciar la agrupación recursiva
-            const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
-            
-            // Ordenar los grupos raíz por su nombre
-            gruposRaiz.sort((a, b) => a.name.localeCompare(b.name));
-    
-            // Añadir los grupos raíz a la lista de grupos
-            groups.push(...gruposRaiz);
-    
-            // Ordenar todos los grupos (primer, segundo y tercer nivel) por su nivel
-            function ordenarGrupos(grupos: IGroup[]): IGroup[] {
-                return grupos
-                    .sort((a, b) => a.level - b.level) // Primero por nivel
-                    .map(group => {
-                        if (group.children) {
-                            // Si tiene subgrupos, ordenar también recursivamente
-                            group.children = ordenarGrupos(group.children);
-                        }
-                        return group;
-                    });
-            }
-    
-            // Aplicar el ordenamiento a todos los grupos
-            groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel (primer, segundo, tercer nivel)
-            groups.forEach(group => {
-                if (group.children) {
-                    group.children = ordenarGrupos(group.children);
-                }
-            });
-    
-            return { items, groups };
-    
-        }, [documentos, columnasAgrupacion]); // Solo volver a calcular si cambian los documentos o columnas
-    
-        return { items, groups };
-    };
-    
+  
     
 
-    const { items, groups } = agruparDocumentosDinamico();
-
-    const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
-        if (props && props.group) {
-            const toggleCollapse = (): void => {
-                props.onToggleCollapse!(props.group!);
-            };
-    
-            let datos = props.group.level;
-            let agrupador = columnasAgrupacion[datos];
-            let campoAgrupador = columnas.filter(x => x.internalName == agrupador)[0];
-    
-            // Ruta de la imagen
-            const imagePath = props.group?.isCollapsed
-              ? require('../assets/folder-close.png')
-              : require('../assets/folder-open.png');
-    
-            return (
-                <div
-                    className={styles.groupHeader}
-                    onClick={toggleCollapse}
-                    style={{ '--group-nesting-depth': props.group!.level } as React.CSSProperties}
-                >
-                    {/* Mostrar la imagen */}
-                    <img src={imagePath} alt={props.group?.isCollapsed? 'Carpeta cerrada': 'Carpeta abierta'} className={styles.groupIcon} />
-    
-                    <span>
-                        <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</div>{" "}
-                        <strong style={{ color: '#444444', fontWeight: 'bold' }}>
-                            {props.group?.name} ({props.group?.count})
-                        </strong>
-                    </span>
-                </div>
-            );
-        }
-    
-        return null;
-    };
-
-    
+  
   const DownloadFileDirect = (fileRelativeUrl) => {
     debugger;
     const tenantUrl = SpContext.pageContext.web.absoluteUrl;
     const downloadUrl = `${tenantUrl}/_layouts/15/download.aspx?SourceUrl=${encodeURIComponent(fileRelativeUrl)}`;
     window.location.href = downloadUrl; // Redirige al archivo para descargarlo
 };
+
+
+const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } => {
+    const { items, groups } = useMemo(() => {
+        const items: Documento[] = [];
+        const groups: IGroup[] = [];
+        let startIndex = 0;
+
+        // Función recursiva para crear los grupos
+        const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
+            // Si hemos agotado los campos, terminamos la recursión
+            if (campoIndex >= campos.length) return [];
+
+            const campoActual = campos[campoIndex];
+            const agrupado = new Map<string, Documento[]>();
+
+            // Agrupar documentos por el campo actual
+            docs.forEach(doc => {
+                const clave = doc[campoActual] || `Sin ${campoActual}`;
+                if (!agrupado.has(clave)) agrupado.set(clave, []);
+                agrupado.get(clave)?.push(doc);
+            });
+
+            // Mapear las claves agrupadas en los grupos y manejar subgrupos recursivos
+            const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
+                const groupKey = `${parentKey}-${clave}-${index}`;
+                const startIndexBackup = startIndex;
+
+                // Llamada recursiva para crear subgrupos
+                const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
+
+                // Añadir los documentos al array 'items'
+                documentosGrupo.forEach(doc => items.push(doc));  // push eficiente
+                startIndex += documentosGrupo.length;
+
+                return {
+                    key: groupKey,
+                    name: clave,
+                    startIndex: startIndexBackup,
+                    count: documentosGrupo.length,
+                    level: nivel,
+                    isCollapsed: true,
+                    children: subGrupos.length > 0 ? subGrupos : undefined,
+                };
+            });
+
+            // Ordenar los grupos por su clave de agrupación (puedes cambiar esto si necesitas otro criterio)
+            return grupos.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar por nombre
+        };
+
+        // Iniciar la agrupación recursiva
+        const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
+        
+        // Ordenar los grupos raíz por su nombre
+        gruposRaiz.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Añadir los grupos raíz a la lista de grupos
+        groups.push(...gruposRaiz);
+
+        // Ordenar todos los grupos (primer, segundo y tercer nivel) por su nivel
+        function ordenarGrupos(grupos: IGroup[]): IGroup[] {
+            return grupos
+                .sort((a, b) => a.level - b.level) // Primero por nivel
+                .map(group => {
+                    if (group.children) {
+                        // Si tiene subgrupos, ordenar también recursivamente
+                        group.children = ordenarGrupos(group.children);
+                    }
+                    return group;
+                });
+        }
+
+        // Aplicar el ordenamiento a todos los grupos
+        groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel (primer, segundo, tercer nivel)
+        groups.forEach(group => {
+            if (group.children) {
+                group.children = ordenarGrupos(group.children);
+            }
+        });
+
+        return { items, groups };
+
+    }, [documentos, columnasAgrupacion]); // Solo volver a calcular si cambian los documentos o columnas
+
+    return { items, groups };
+};
+
+
+const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
+    if (props && props.group) {
+        const toggleCollapse = (): void => {
+            props.onToggleCollapse!(props.group!);
+        };
+
+        let datos = props.group.level;
+        let agrupador = columnasAgrupacion[datos];
+        let campoAgrupador = columnas.filter(x => x.internalName == agrupador)[0];
+
+        // Ruta de la imagen
+        const imagePath = props.group?.isCollapsed
+          ? require('../assets/folder-close.png')
+          : require('../assets/folder-open.png');
+
+        return (
+            <div
+                className={styles.groupHeader}
+                onClick={toggleCollapse}
+                style={{ '--group-nesting-depth': props.group!.level } as React.CSSProperties}
+            >
+                {/* Mostrar la imagen */}
+                <img src={imagePath} alt={props.group?.isCollapsed? 'Carpeta cerrada': 'Carpeta abierta'} className={styles.groupIcon} />
+
+                <span>
+                    <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</div>{" "}
+                    <strong style={{ color: '#444444', fontWeight: 'bold' }}>
+                        {props.group?.name} ({props.group?.count})
+                    </strong>
+                </span>
+            </div>
+        );
+    }
+
+    return null;
+};
+
 const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: number): React.ReactNode => {
     return item? (
         <div className={styles.detailsRow}>
@@ -289,6 +291,12 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                 return <FileText className={styles.fileIcon} />;
         }
     };
+
+
+    const { items, groups } = agruparDocumentosDinamico();
+
+   
+    
 
     return (
         <ThemeProvider theme={theme}>
