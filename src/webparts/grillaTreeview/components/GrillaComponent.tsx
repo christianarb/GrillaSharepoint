@@ -56,9 +56,6 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const totalDeRegistros = 4999;
-    const [paginaGrupo, setPaginaGrupo] = useState<{ [key: string]: number }>({}); // Paginación por grupo
-    const registrosPorPagina = 10; // Mostrar 10 registros por página
-
 
     const selection = new Selection();
 
@@ -91,31 +88,40 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         }
     };
 
+  
+ 
+
     const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } => {
         const { items, groups } = useMemo(() => {
             const items: Documento[] = [];
             const groups: IGroup[] = [];
             let startIndex = 0;
     
+            // Función recursiva para crear los grupos
             const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
+                // Si hemos agotado los campos, terminamos la recursión
                 if (campoIndex >= campos.length) return [];
     
                 const campoActual = campos[campoIndex];
                 const agrupado = new Map<string, Documento[]>();
     
+                // Agrupar documentos por el campo actual
                 docs.forEach(doc => {
                     const clave = doc[campoActual] || `Sin ${campoActual}`;
                     if (!agrupado.has(clave)) agrupado.set(clave, []);
                     agrupado.get(clave)?.push(doc);
                 });
     
+                // Mapear las claves agrupadas en los grupos y manejar subgrupos recursivos
                 const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
                     const groupKey = `${parentKey}-${clave}-${index}`;
                     const startIndexBackup = startIndex;
     
+                    // Llamada recursiva para crear subgrupos
                     const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
     
-                    documentosGrupo.forEach(doc => items.push(doc));
+                    // Añadir los documentos al array 'items'
+                    documentosGrupo.forEach(doc => items.push(doc));  // push eficiente
                     startIndex += documentosGrupo.length;
     
                     return {
@@ -126,19 +132,26 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                         level: nivel,
                         isCollapsed: true,
                         children: subGrupos.length > 0 ? subGrupos : undefined,
-                        data: documentosGrupo, // Guardamos los elementos del grupo
                     };
                 });
     
-                return grupos;
+                // Ordenar los grupos por su clave de agrupación (puedes cambiar esto si necesitas otro criterio)
+                return grupos.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar por nombre
             };
     
+            // Iniciar la agrupación recursiva
             const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
+            
+            // Ordenar los grupos raíz por su nombre
+            gruposRaiz.sort((a, b) => a.name.localeCompare(b.name));
     
-            // Ordenamos los grupos por nivel jerárquico
-            const ordenarGrupos = (grupos: IGroup[]): IGroup[] => {
+            // Añadir los grupos raíz a la lista de grupos
+            groups.push(...gruposRaiz);
+    
+            // Ordenar todos los grupos (primer, segundo y tercer nivel) por su nivel
+            function ordenarGrupos(grupos: IGroup[]): IGroup[] {
                 return grupos
-                    .sort((a, b) => a.level - b.level) // Ordenar por nivel de agrupación
+                    .sort((a, b) => a.level - b.level) // Primero por nivel
                     .map(group => {
                         if (group.children) {
                             // Si tiene subgrupos, ordenar también recursivamente
@@ -146,11 +159,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                         }
                         return group;
                     });
-            };
+            }
     
-            groups.push(...gruposRaiz);
-            groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel
-    
+            // Aplicar el ordenamiento a todos los grupos
+            groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel (primer, segundo, tercer nivel)
             groups.forEach(group => {
                 if (group.children) {
                     group.children = ordenarGrupos(group.children);
@@ -158,62 +170,16 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
             });
     
             return { items, groups };
-        }, [documentos, columnasAgrupacion]);
+    
+        }, [documentos, columnasAgrupacion]); // Solo volver a calcular si cambian los documentos o columnas
     
         return { items, groups };
     };
     
-    const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
-        if (props && props.group && props.group.level === columnasAgrupacion.length - 1) {
-            const groupKey = props.group.key;
-            const pagina = paginaGrupo[groupKey] || 1; // Página actual por grupo
-            const itemsPorPagina = 10;
-            const totalItems = props.group.data.length;
     
-            // Si el total de elementos es 10 o menos, no mostramos los botones de paginación
-            if (totalItems <= itemsPorPagina) {
-                return null;
-            }
-    
-            const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
-    
-            // Limitar los elementos a los 10 que corresponden a la página actual
-            const startIndex = (pagina - 1) * itemsPorPagina;
-            const endIndex = startIndex + itemsPorPagina;
-            const itemsPag = props.group.data.slice(startIndex, endIndex); // Obtener los elementos del grupo para la página actual
-    
-            // Función para cambiar la página
-            const handlePageChange = (newPage: number) => {
-                setPaginaGrupo(prevState => ({
-                    ...prevState,
-                    [groupKey]: newPage,
-                }));
-            };
-    
-            return (
-                <div className={styles.pagination}>
-                    <button
-                        onClick={() => handlePageChange(pagina - 1)}
-                        disabled={pagina === 1}
-                        className={styles.paginationButton}
-                    >
-                        Anterior
-                    </button>
-                    <span>{`Página ${pagina} de ${totalPaginas}`}</span>
-                    <button
-                        onClick={() => handlePageChange(pagina + 1)}
-                        disabled={pagina === totalPaginas}
-                        className={styles.paginationButton}
-                    >
-                        Siguiente
-                    </button>
-                </div>
-            );
-        }
-    
-        return null;
-    };
-    
+
+    const { items, groups } = agruparDocumentosDinamico();
+
     const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
         if (props && props.group) {
             const toggleCollapse = (): void => {
@@ -251,8 +217,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         return null;
     };
 
-    const { items, groups } = agruparDocumentosDinamico();
-
+    
   const DownloadFileDirect = (fileRelativeUrl) => {
     debugger;
     const tenantUrl = SpContext.pageContext.web.absoluteUrl;
@@ -292,12 +257,15 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
 };
 
 
-
-
-
-
-
-
+const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
+    debugger;
+    let agrupador = props.group;
+    if(agrupador.level == columnasAgrupacion.length -1){
+        return <div>Implementar agrupador para: {props.group!.name}</div>;
+    }else{
+        return null;
+    }
+  };
 
     const getFileIcon = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
