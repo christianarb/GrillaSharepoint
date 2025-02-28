@@ -1,12 +1,27 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { GroupedList, IGroup, IGroupHeaderProps } from '@fluentui/react/lib/GroupedList';
+import { useState, useEffect,useMemo } from 'react';
+import { GroupedList, IGroup, IGroupHeaderProps, IGroupFooterProps} from '@fluentui/react/lib/GroupedList';
 import { Selection, SelectionMode, SelectionZone } from '@fluentui/react/lib/Selection';
 import { AiFillFilePdf, AiFillFileWord, AiFillFileExcel } from 'react-icons/ai';
 import { Folder, FolderOpen, FileText, Search } from 'lucide-react';
 import styles from './Grilla.module.scss';
 import { spservices } from "../../../SPServices/spservices";
+import { createTheme, ThemeProvider } from '@fluentui/react';
 
+const theme = createTheme({
+    fonts: {
+        medium: { fontFamily: 'Segoe UI, sans-serif' },
+        large: { fontFamily: 'Segoe UI, sans-serif' },
+        small: { fontFamily: 'Segoe UI, sans-serif' }, // Ejemplo: estilo small
+      
+        // ... otros estilos que uses
+    },
+    palette: { // Ejemplo: Cambiar colores si es necesario
+      themePrimary: '#0078d4', // Color primario
+      themeLighterAlt: '#f3f2f1', // Color de fondo para encabezados
+      // ... otros colores
+    }
+});
 
 interface Documento {
     [key: string]: any;
@@ -40,7 +55,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const registrosPorPagina = 4999;
+    const totalDeRegistros = 4999;
+    const [paginaGrupo, setPaginaGrupo] = useState<{ [key: string]: number }>({}); // Paginación por grupo
+    const registrosPorPagina = 10; // Mostrar 10 registros por página
+
 
     const selection = new Selection();
 
@@ -53,10 +71,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         setLoading(true);
         setError(null);
         try {
-            const startRow = (pagina - 1) * registrosPorPagina;
+            const startRow = (pagina - 1) * totalDeRegistros;
             const resultados = await _services.obtenerDocumentos(
                 startRow,
-                registrosPorPagina,
+                totalDeRegistros,
                 columnas,
                 biblioteca,
                 ordenColumna,
@@ -74,51 +92,128 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     };
 
     const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } => {
-        const items: Documento[] = [];
-        const groups: IGroup[] = [];
-        let startIndex = 0;
+        const { items, groups } = useMemo(() => {
+            const items: Documento[] = [];
+            const groups: IGroup[] = [];
+            let startIndex = 0;
     
-        const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
-            if (campoIndex >= campos.length) return [];
+            const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
+                if (campoIndex >= campos.length) return [];
     
-            const campoActual = campos[campoIndex];
-            const agrupado = new Map<string, Documento[]>();
+                const campoActual = campos[campoIndex];
+                const agrupado = new Map<string, Documento[]>();
     
-            docs.forEach(doc => {
-                const clave = doc[campoActual] || `Sin ${campoActual}`;
-                if (!agrupado.has(clave)) agrupado.set(clave, []);
-                agrupado.get(clave)!.push(doc);
+                docs.forEach(doc => {
+                    const clave = doc[campoActual] || `Sin ${campoActual}`;
+                    if (!agrupado.has(clave)) agrupado.set(clave, []);
+                    agrupado.get(clave)?.push(doc);
+                });
+    
+                const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
+                    const groupKey = `${parentKey}-${clave}-${index}`;
+                    const startIndexBackup = startIndex;
+    
+                    const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
+    
+                    documentosGrupo.forEach(doc => items.push(doc));
+                    startIndex += documentosGrupo.length;
+    
+                    return {
+                        key: groupKey,
+                        name: clave,
+                        startIndex: startIndexBackup,
+                        count: documentosGrupo.length,
+                        level: nivel,
+                        isCollapsed: true,
+                        children: subGrupos.length > 0 ? subGrupos : undefined,
+                        data: documentosGrupo, // Guardamos los elementos del grupo
+                    };
+                });
+    
+                return grupos;
+            };
+    
+            const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
+    
+            // Ordenamos los grupos por nivel jerárquico
+            const ordenarGrupos = (grupos: IGroup[]): IGroup[] => {
+                return grupos
+                    .sort((a, b) => a.level - b.level) // Ordenar por nivel de agrupación
+                    .map(group => {
+                        if (group.children) {
+                            // Si tiene subgrupos, ordenar también recursivamente
+                            group.children = ordenarGrupos(group.children);
+                        }
+                        return group;
+                    });
+            };
+    
+            groups.push(...gruposRaiz);
+            groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel
+    
+            groups.forEach(group => {
+                if (group.children) {
+                    group.children = ordenarGrupos(group.children);
+                }
             });
     
-            const grupos = Array.from(agrupado.entries()).map(([clave, documentosGrupo], index) => {
-                const groupKey = `${parentKey}-${clave}-${index}`;
-                const startIndexBackup = startIndex;
+            return { items, groups };
+        }, [documentos, columnasAgrupacion]);
     
-                const subGrupos = crearGruposRecursivos(documentosGrupo, campos, campoIndex + 1, nivel + 1, groupKey);
-    
-                documentosGrupo.forEach(doc => items.push(doc)); // push más eficiente
-                startIndex += documentosGrupo.length;
-    
-                return {
-                    key: groupKey,
-                    name: clave,
-                    startIndex: startIndexBackup,
-                    count: documentosGrupo.length,
-                    level: nivel,
-                    isCollapsed: true,
-                    children: subGrupos.length > 0 ? subGrupos : undefined,
-                };
-            });
-            return grupos;
-        };
-    
-        const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
-        groups.push(...gruposRaiz);
         return { items, groups };
     };
-
-    const { items, groups } = agruparDocumentosDinamico();
-
+    
+    const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
+        if (props && props.group && props.group.level === columnasAgrupacion.length - 1) {
+            const groupKey = props.group.key;
+            const pagina = paginaGrupo[groupKey] || 1; // Página actual por grupo
+            const itemsPorPagina = 10;
+            const totalItems = props.group.data.length;
+    
+            // Si el total de elementos es 10 o menos, no mostramos los botones de paginación
+            if (totalItems <= itemsPorPagina) {
+                return null;
+            }
+    
+            const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
+    
+            // Limitar los elementos a los 10 que corresponden a la página actual
+            const startIndex = (pagina - 1) * itemsPorPagina;
+            const endIndex = startIndex + itemsPorPagina;
+            const itemsPag = props.group.data.slice(startIndex, endIndex); // Obtener los elementos del grupo para la página actual
+    
+            // Función para cambiar la página
+            const handlePageChange = (newPage: number) => {
+                setPaginaGrupo(prevState => ({
+                    ...prevState,
+                    [groupKey]: newPage,
+                }));
+            };
+    
+            return (
+                <div className={styles.pagination}>
+                    <button
+                        onClick={() => handlePageChange(pagina - 1)}
+                        disabled={pagina === 1}
+                        className={styles.paginationButton}
+                    >
+                        Anterior
+                    </button>
+                    <span>{`Página ${pagina} de ${totalPaginas}`}</span>
+                    <button
+                        onClick={() => handlePageChange(pagina + 1)}
+                        disabled={pagina === totalPaginas}
+                        className={styles.paginationButton}
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            );
+        }
+    
+        return null;
+    };
+    
     const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
         if (props && props.group) {
             const toggleCollapse = (): void => {
@@ -144,7 +239,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                     <img src={imagePath} alt={props.group?.isCollapsed? 'Carpeta cerrada': 'Carpeta abierta'} className={styles.groupIcon} />
     
                     <span>
-                        <b style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</b>{" "}
+                        <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</div>{" "}
                         <strong style={{ color: '#444444', fontWeight: 'bold' }}>
                             {props.group?.name} ({props.group?.count})
                         </strong>
@@ -156,7 +251,8 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         return null;
     };
 
-    
+    const { items, groups } = agruparDocumentosDinamico();
+
   const DownloadFileDirect = (fileRelativeUrl) => {
     debugger;
     const tenantUrl = SpContext.pageContext.web.absoluteUrl;
@@ -195,27 +291,39 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
     ): null;
 };
 
+
+
+
+
+
+
+
+
     const getFileIcon = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
-        const imagePath =  require('../assets/icpdf.png');
+
+        const imagePathPdf =  require('../assets/icpdf.png');
+        const imagePathDoc =  require('../assets/icdocx.png');
+        const imagePathXsl =  require('../assets/icxlsx.png');
   
 
         switch (extension) {
             case 'pdf':
-                return <img src={imagePath} className={styles.fileIcon} />
+                return <img src={imagePathPdf} className={styles.fileIcon} />
     
             case 'doc':
             case 'docx':
-                return <AiFillFileWord className={styles.fileIcon} />;
+                return <img src={imagePathDoc} className={styles.fileIcon} />
             case 'xls':
             case 'xlsx':
-                return <AiFillFileExcel className={styles.fileIcon} />;
+                return <img src={imagePathXsl} className={styles.fileIcon} />
             default:
                 return <FileText className={styles.fileIcon} />;
         }
     };
 
     return (
+        <ThemeProvider theme={theme}>
         <div className={styles.container}>
             <div className={styles.header}>
                 <div className={styles.searchBar}>
@@ -227,10 +335,10 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
                         onChange={async (e)  => {
                             debugger;
                             setSearchTerm(e.target.value);
-                            const startRow = (paginaActual - 1) * registrosPorPagina;
+                            const startRow = (paginaActual - 1) * totalDeRegistros;
                             const resultados = await _services.obtenerDocumentos(
                                 startRow,
-                                registrosPorPagina,
+                                totalDeRegistros,
                                 columnas,
                                 biblioteca,
                                 ordenColumna,
@@ -262,15 +370,18 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
                         <GroupedList
                             items={items}
                             groups={groups}
+                            
                             onRenderCell={onRenderCell}
                             selectionMode={SelectionMode.single}
                             groupProps={{
                                 onRenderHeader,
+                                onRenderFooter
                             }}
                         />
                     </SelectionZone>
                 </div>
             )}
         </div>
+        </ThemeProvider>
     );
 };

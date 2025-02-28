@@ -143,3 +143,30 @@
   height: 20px;
   color: #0078d4;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.paginationButton {
+  padding: 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.paginationButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+
+.pagination span {
+  font-size: 16px;
+  font-weight: bold;
+}

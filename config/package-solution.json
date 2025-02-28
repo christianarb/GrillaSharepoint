@@ -3,7 +3,7 @@
   "solution": {
     "name": "listview-webparts",
     "id": "1b83c6e6-1e17-47f5-8876-d6e30ff73aa1",
-    "version": "2.0.0.0",
+    "version": "3.0.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "listview-webparts Feature",
         "description": "The feature that activates elements of the listview-webparts solution.",
         "id": "f23f9cb2-f604-4e05-9826-cd2703b03a38",
-        "version": "2.0.0.0"
+        "version": "3.0.0.0"
       }
     ]
   },
