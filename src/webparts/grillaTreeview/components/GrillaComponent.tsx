@@ -311,10 +311,11 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                         return (
                             <tr {...row.getRowProps()}>
                                 {row.cells.map(cell => {
+                                    debugger;
                                     const col = cell.column;
                                     return (
                                         <td {...cell.getCellProps()} className={styles.tableCell}>
-                                            {col.internalName === 'LinkFilename' ? (
+                                            {col.id === 'LinkFilename' ? (
                                                 <a
                                                     href={row.original['FileRef']}
                                                     target="_blank"
@@ -326,8 +327,8 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                                                     }}
                                                     style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}
                                                 >
-                                                    {getFileIcon(row.original[col.internalName])}
-                                                    {row.original[col.internalName]}
+                                                    {getFileIcon(row.original[col.id])}
+                                                    {row.original[col.id]}
                                                 </a>
                                             ) : (
                                                 cell.render('Cell') || '-'
