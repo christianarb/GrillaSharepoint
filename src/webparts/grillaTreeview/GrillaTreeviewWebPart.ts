@@ -48,6 +48,7 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                             columnas: columnasConfig,
                             columnaAgrupacion: columnasAgrupacionConfig, // Pasar las columnas de agrupación
                             biblioteca: this.properties.biblioteca
+                            
                         }
                     );
 

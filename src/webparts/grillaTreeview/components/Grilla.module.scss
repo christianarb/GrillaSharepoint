@@ -170,3 +170,91 @@
   font-size: 16px;
   font-weight: bold;
 }
+
+
+/* General */
+.dataTableWrapper {
+  margin-top: 10px;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.tableHeaderCell {
+  padding: 10px;
+  text-align: left;
+  background-color: #f4f4f4;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+}
+
+.tableCell {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.paginationControls {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.paginationButton {
+  padding: 5px 10px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 0 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.paginationButton:disabled {
+  background-color: #cfcfcf;
+  cursor: not-allowed;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #005a9e;
+}
+
+.paginationText {
+  margin-left: 10px;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.groupHeader {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #f4f4f4;
+  border-bottom: 2px solid #ddd;
+  display: flex;
+  align-items: center;
+}
+
+.groupIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.groupHeaderText {
+  font-size: 16px;
+  color: #444;
+  font-weight: bold;
+}
+
+.dataTableContainer {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-left: calc(var(--nivel, 0) * 20px);
+
+}

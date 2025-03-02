@@ -7,6 +7,7 @@ import { Folder, FolderOpen, FileText, Search } from 'lucide-react';
 import styles from './Grilla.module.scss';
 import { spservices } from "../../../SPServices/spservices";
 import { createTheme, ThemeProvider } from '@fluentui/react';
+import { useTable, usePagination } from 'react-table';
 
 const theme = createTheme({
     fonts: {
@@ -56,6 +57,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const totalDeRegistros = 4999;
+    
 
     const selection = new Selection();
 
@@ -143,7 +145,8 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
                     count: documentosGrupo.length,
                     level: nivel,
                     isCollapsed: true,
-                    children: subGrupos.length > 0 ? subGrupos : undefined,
+                    children: subGrupos.length > 0 ? subGrupos : null,
+                    data:documentosGrupo
                 };
             });
 
@@ -189,6 +192,7 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
 };
 
 
+// onRenderHeader para manejar la expansión y el colapso
 const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
     if (props && props.group) {
         const toggleCollapse = (): void => {
@@ -201,17 +205,18 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
 
         // Ruta de la imagen
         const imagePath = props.group?.isCollapsed
-          ? require('../assets/folder-close.png')
-          : require('../assets/folder-open.png');
+            ? require('../assets/folder-close.png')
+            : require('../assets/folder-open.png');
 
         return (
+            
             <div
                 className={styles.groupHeader}
                 onClick={toggleCollapse}
                 style={{ '--group-nesting-depth': props.group!.level } as React.CSSProperties}
             >
                 {/* Mostrar la imagen */}
-                <img src={imagePath} alt={props.group?.isCollapsed? 'Carpeta cerrada': 'Carpeta abierta'} className={styles.groupIcon} />
+                <img src={imagePath} alt={props.group?.isCollapsed ? 'Carpeta cerrada' : 'Carpeta abierta'} className={styles.groupIcon} />
 
                 <span>
                     <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</div>{" "}
@@ -219,19 +224,24 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
                         {props.group?.name} ({props.group?.count})
                     </strong>
                 </span>
+
+               
             </div>
+            
+          
         );
     }
 
     return null;
 };
 
-const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: number): React.ReactNode => {
+const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: number , group?: IGroup): React.ReactNode => {
+    debugger;
+
+    console.log(item);
+    console.log(group);
     return item? (
-        <div className={styles.detailsRow}>
-            <div className={styles.detailsCheckbox}>
-                {/*... */}
-            </div>
+        <div className={styles.detailsRow}>           
             {columnas.map((col) => (
                 <div key={col.internalName} className={styles.tableCell}>
                     {col.internalName === 'LinkFilename'? (
@@ -259,15 +269,117 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
 };
 
 
+
+
+// Componente DataTable para renderizar la tabla y manejar la paginación
+const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({ data, columnas }) => {
+    const columns = React.useMemo(
+        () => columnas.map(col => ({
+            Header: col.displayName,
+            accessor: col.internalName
+        })),
+        [columnas]
+    );
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+        canPreviousPage,
+        canNextPage,
+        page,
+        gotoPage,
+        pageCount,
+        state: { pageIndex, pageSize },
+    } = useTable(
+        {
+            columns,
+            data,
+            initialState: { pageIndex: 0, pageSize: 10},
+        },
+        usePagination
+    );
+
+    return (
+        <div className={styles.dataTableWrapper}>
+            <table {...getTableProps()} className={styles.dataTable}>                
+            <tbody {...getTableBodyProps()}>
+                    {page.map(row => {
+                        prepareRow(row);
+                        return (
+                            <tr {...row.getRowProps()}>
+                                {row.cells.map(cell => {
+                                    const col = cell.column;
+                                    return (
+                                        <td {...cell.getCellProps()} className={styles.tableCell}>
+                                            {col.internalName === 'LinkFilename' ? (
+                                                <a
+                                                    href={row.original['FileRef']}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={styles.fileName}
+                                                    onClick={() => {
+                                                        console.log(row.original);
+                                                        DownloadFileDirect(row.original.File.ServerRelativeUrl);
+                                                    }}
+                                                    style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}
+                                                >
+                                                    {getFileIcon(row.original[col.internalName])}
+                                                    {row.original[col.internalName]}
+                                                </a>
+                                            ) : (
+                                                cell.render('Cell') || '-'
+                                            )}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+
+            <div className={styles.paginationControls}>
+                <button onClick={() => gotoPage(0)} disabled={!canPreviousPage} className={styles.paginationButton}>
+                    {'<<'}
+                </button>
+                <button onClick={() => gotoPage(pageIndex - 1)} disabled={!canPreviousPage} className={styles.paginationButton}>
+                    {'<'}
+                </button>
+                <button onClick={() => gotoPage(pageIndex + 1)} disabled={!canNextPage} className={styles.paginationButton}>
+                    {'>'}
+                </button>
+                <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage} className={styles.paginationButton}>
+                    {'>>'}
+                </button>
+                <span className={styles.paginationText}>
+                    Página {pageIndex + 1} de {pageCount}
+                </span>
+            </div>
+        </div>
+    );
+};
+
+
+// onRenderFooter para mostrar el DataTable solo si el grupo está expandido
 const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
-    debugger;
-    let agrupador = props.group;
-    if(agrupador.level == columnasAgrupacion.length -1){
-        return <div>Implementar agrupador para: {props.group!.name}</div>;
-    }else{
-        return null;
+    if (props && props.group && props.group.level === columnasAgrupacion.length - 1) {
+        debugger;
+        return (
+            <div className={styles.dataTableContainer}
+                style={{ '--nivel': props.group!.level } as React.CSSProperties}>
+                {/* Mostrar el DataTable solo si el grupo está expandido */}
+                {!props.group?.isCollapsed && (
+                    <DataTable data={props.group.data} columnas={columnas} />
+                )}
+            </div>
+        );
     }
-  };
+    return null;
+};
+
 
     const getFileIcon = (fileName: string) => {
         const extension = fileName.split('.').pop()?.toLowerCase();
@@ -344,7 +456,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                     </div>
                     <SelectionZone selection={selection} selectionMode={SelectionMode.single}>
                         <GroupedList
-                            items={items}
+                            items={[]}
                             groups={groups}
                             
                             onRenderCell={onRenderCell}
@@ -352,6 +464,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                             groupProps={{
                                 onRenderHeader,
                                 onRenderFooter
+                                
                             }}
                         />
                     </SelectionZone>

@@ -17,6 +17,7 @@ export default class grillaTreeview extends React.Component<IgrillaTreeviewProps
       <GrillaComponente  SpContext={SpContext} 
       columnas={columnas} 
       columnasAgrupacion={columnaAgrupacion} 
+      
       biblioteca={biblioteca}></GrillaComponente>     
  
   );
