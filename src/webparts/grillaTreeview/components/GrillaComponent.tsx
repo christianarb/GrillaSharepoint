@@ -57,9 +57,24 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const totalDeRegistros = 4999;
+    const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set()); // Usar un Set para manejar los grupos expandidos
+
     
 
     const selection = new Selection();
+
+        // Función para manejar la expansión y colapso de los grupos
+        const toggleGroupExpansion = (groupKey: string) => {
+            setExpandedGroups(prevState => {
+                const newExpandedGroups = new Set(prevState);
+                if (newExpandedGroups.has(groupKey)) {
+                    newExpandedGroups.delete(groupKey);
+                } else {
+                    newExpandedGroups.add(groupKey);
+                }
+                return newExpandedGroups;
+            });
+        };
 
     useEffect(() => {
         debugger;
@@ -145,7 +160,7 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
                     startIndex: startIndexBackup,
                     count: documentosGrupo.length,
                     level: nivel,
-                    isCollapsed: true,
+                    isCollapsed: !expandedGroups.has(groupKey), // Usar el estado de expansión
                     children: subGrupos.length > 0 ? subGrupos : null,
                     data:documentosGrupo
                 };
@@ -187,7 +202,7 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
 
         return { items, groups };
 
-    }, [documentos, columnasAgrupacion]); // Solo volver a calcular si cambian los documentos o columnas
+    }, [documentos, columnasAgrupacion,expandedGroups]); // Solo volver a calcular si cambian los documentos o columnas
 
     return { items, groups };
 };
@@ -200,7 +215,7 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
 const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
     if (props && props.group) {
         const toggleCollapse = (): void => {
-            props.onToggleCollapse!(props.group!);
+            toggleGroupExpansion(props.group.key); // Cambiar el estado de expansión del grupo
         };
 
         let datos = props.group.level;
@@ -457,20 +472,18 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                             </div>
                         ))}
                     </div>
-                    <SelectionZone selection={selection} selectionMode={SelectionMode.single}>
+                  
                         <GroupedList
                             items={[]}
-                            groups={groups}
-                            
+                            groups={groups}                            
                             onRenderCell={onRenderCell}
                             selectionMode={SelectionMode.single}
                             groupProps={{
                                 onRenderHeader,
-                                onRenderFooter
-                                
+                                onRenderFooter                                
                             }}
                         />
-                    </SelectionZone>
+                   
                 </div>
             )}
         </div>
