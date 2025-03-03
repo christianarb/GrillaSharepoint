@@ -56,7 +56,7 @@ export class spservices implements ISPServices {
     let filter = "";
 
     const baseUrl = this.context.pageContext.web.absoluteUrl; // Obtiene la URL base del sitio
-    let url = `${baseUrl}/_api/web/lists/getbytitle('`+bibliotecaRelativa+`')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${ordenColumna} ${direccionOrden}&$select=File,${columnasSeleccionadas}&${skipToken}`;
+    let url = `${baseUrl}/_api/web/lists/getbytitle('`+bibliotecaRelativa+`')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${ordenColumna} ${direccionOrden}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
 
     if (filtro) { // Aplicar filtro solo si se proporciona un término de búsqueda
       const encodedSearchTerm = encodeURIComponent(filtro); // Codificar el término de búsqueda

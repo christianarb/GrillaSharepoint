@@ -70,6 +70,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         setLoading(true);
         setError(null);
         try {
+            debugger;
             const startRow = (pagina - 1) * totalDeRegistros;
             const resultados = await _services.obtenerDocumentos(
                 startRow,
@@ -192,6 +193,9 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
 };
 
 
+
+
+
 // onRenderHeader para manejar la expansión y el colapso
 const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
     if (props && props.group) {
@@ -219,10 +223,8 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
                 <img src={imagePath} alt={props.group?.isCollapsed ? 'Carpeta cerrada' : 'Carpeta abierta'} className={styles.groupIcon} />
 
                 <span>
-                    <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}:</div>{" "}
-                    <strong style={{ color: '#444444', fontWeight: 'bold' }}>
-                        {props.group?.name} ({props.group?.count})
-                    </strong>
+                    <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}: <strong style={{ color: '#444444', fontWeight: 'bold' }}>{props.group?.name} ({props.group?.count})</strong> 
+                    </div>                    
                 </span>
 
                
@@ -418,7 +420,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                 <div className={styles.searchBar}>
                     <input
                         type="text"
-                        placeholder="Buscar..."
+                        placeholder="Buscar un archivo..."
                         className={styles.searchInput}
                         value={searchTerm}
                         onChange={async (e)  => {
