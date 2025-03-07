@@ -36,6 +36,7 @@ export class spservices implements ISPServices {
     spservices.SPContext = this.context
   }
 
+  
   public async obtenerDocumentos(
     startRow: number,
     rowsPerPage: number,
@@ -43,26 +44,38 @@ export class spservices implements ISPServices {
     bibliotecaRelativa: string, // Ahora recibe la ruta RELATIVA de la biblioteca
     ordenColumna: string,
     direccionOrden: string,
-    filtro:string
+    filtro:string,
+    camposAfiltrar:any
 ): Promise<any[]> {
  
     const columnasSeleccionadas = columnas.map(col => col.internalName).join(',');
     let skipToken = "";
 
-    if (startRow > 0) {
-        skipToken = `&$skiptoken=Paged=TRUE&p_ID=${startRow}`;
-    }
 
     let filter = "";
 
-    const baseUrl = this.context.pageContext.web.absoluteUrl; // Obtiene la URL base del sitio
-    let url = `${baseUrl}/_api/web/lists/getbytitle('`+bibliotecaRelativa+`')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${ordenColumna} ${direccionOrden}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
+    if (startRow > 0) {
+    skipToken = `&$skiptoken=Paged=TRUE&p_ID=${startRow}`;
+      }
 
-    if (filtro) { // Aplicar filtro solo si se proporciona un término de búsqueda
-      const encodedSearchTerm = encodeURIComponent(filtro); // Codificar el término de búsqueda
-      filter = `&$filter=startswith(FileLeafRef,'${encodedSearchTerm}') or substringof('${encodedSearchTerm}',FileLeafRef)`;
-      url+= (url + filter);
-    }
+      const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
+      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${ordenColumna} ${direccionOrden}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
+
+      if (filtro) { 
+          // Codifica el término de búsqueda para evitar errores en la consulta OData
+          const encodedSearchTerm = encodeURIComponent(filtro);
+          
+          // Generar filtros dinámicos basados en los campos especificados
+          const filtrosDinamicos = camposAfiltrar.map(campo => 
+              `startswith(${campo},'${encodedSearchTerm}') or substringof('${encodedSearchTerm}',${campo})`
+          ).join(" or ");
+
+          // Construcción del filtro OData
+          filter = `&$filter=${filtrosDinamicos}`;
+          
+          url += filter;
+      }
+
     
     try {
         const response: SPHttpClientResponse = await this.context.spHttpClient.get(url, SPHttpClient.configurations.v1);

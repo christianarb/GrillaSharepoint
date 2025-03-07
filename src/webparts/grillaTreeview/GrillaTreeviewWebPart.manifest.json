@@ -29,18 +29,19 @@
         "default": "Advanced"
       },
       "title": {
-        "default": "Grilla-Treeview"
+        "default": "sgd-documentos"
       },
       "description": {
-        "default": "Grilla-Treeview description"
+        "default": "sgd-documentos description"
       },
       "officeFabricIconFontName": "Page",
       "properties": {
-        "description": "Grilla-Treeview",
+        "description": "sgd-documentos",
         "columnas": "[{\"internalName\": \"LinkFilename\", \"displayName\": \"Nombre\"}, {\"internalName\": \"sgdCompania\", \"displayName\": \"Compañía\"}, {\"internalName\": \"sgdBU\", \"displayName\": \"Unidad de Negocio\"}, {\"internalName\": \"sgdTipoDocumento\", \"displayName\": \"Tipo de Documento\"}]",
         "columnaAgrupador": "sgdBU",
         "biblioteca": "Documentos Públicos",
-        "columnasAgrupacion":"[\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
+        "columnasAgrupacion":"[\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]",
+        "camposAfiltrar":"[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
       }
     }
   ]

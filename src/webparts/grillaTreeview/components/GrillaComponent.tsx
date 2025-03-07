@@ -40,6 +40,7 @@ interface GrillaDocumentosProps {
     biblioteca: string;
     ordenColumna?: string;
     direccionOrden?: string;
+    camposAfiltrar:string[];
 }
 
 export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
@@ -49,7 +50,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     biblioteca,
     ordenColumna = 'LinkFilename',
     direccionOrden = 'asc',
+    camposAfiltrar
 }) => {
+    debugger;
+
     const _services = new spservices(SpContext);
     const [documentos, setDocumentos] = useState<Documento[]>([]);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -87,6 +91,9 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         try {
             debugger;
             const startRow = (pagina - 1) * totalDeRegistros;
+
+
+
             const resultados = await _services.obtenerDocumentos(
                 startRow,
                 totalDeRegistros,
@@ -94,7 +101,8 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                 biblioteca,
                 ordenColumna,
                 direccionOrden,
-                searchTerm
+                searchTerm,
+                camposAfiltrar
             );
             setDocumentos(resultados);
         } catch (error) {
@@ -425,7 +433,10 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
 
     const { items, groups } = agruparDocumentosDinamico();
 
-   
+    function sanitizeSearchTerm(term: string): string {
+        return encodeURIComponent(term.replace(/'/g, "''")); // Escapar comillas y codificar caracteres especiales
+    }
+     
     
 
     return (
@@ -435,7 +446,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                 <div className={styles.searchBar}>
                     <input
                         type="text"
-                        placeholder="Buscar un archivo..."
+                        placeholder="Buscar un documento..."
                         className={styles.searchInput}
                         value={searchTerm}
                         onChange={async (e)  => {
@@ -449,7 +460,8 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                                 biblioteca,
                                 ordenColumna,
                                 direccionOrden,
-                                e.target.value
+                                sanitizeSearchTerm(e.target.value),
+                                camposAfiltrar
                             );
                             setDocumentos(resultados);
                         }

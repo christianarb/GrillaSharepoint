@@ -22,6 +22,7 @@ export interface IgrillaTreeviewWebPartProps {
     columnas: string;
     columnasAgrupacion: string; // Nuevo prop para las columnas de agrupación
     biblioteca: string;
+    camposAfiltrar:string;
 }
 
 export default class grillaTreeviewWebPart extends BaseClientSideWebPart<IgrillaTreeviewWebPartProps> {
@@ -38,16 +39,18 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
               .then(() => SPComponentLoader.loadScript(siteColUrl + '/_layouts/15/SP.js', { globalExportsName: 'SP' }))
               .then(() => {
                
+                    debugger;
                     const columnasConfig: IColumnConfig = this._obtenerColumnas(this.properties.columnas);
-                    const columnasAgrupacionConfig: string = this._obtenerColumnasAgrupacion(); // Obtener columnas de agrupación
-
+                    const columnasAgrupacionConfig: any = this._obtenerColumnasAgrupacion(); // Obtener columnas de agrupación
+                    const camposAfiltrar: any = this._obtenerColumnasFiltro();
                     const element: React.ReactElement<IgrillaTreeviewProps> = React.createElement(
                         grillaTreeview,
                         {
                             SpContext: this.context,
                             columnas: columnasConfig,
                             columnaAgrupacion: columnasAgrupacionConfig, // Pasar las columnas de agrupación
-                            biblioteca: this.properties.biblioteca
+                            biblioteca: this.properties.biblioteca,
+                            camposAfiltrar: camposAfiltrar
                             
                         }
                     );
@@ -72,11 +75,25 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
         }
     }
 
-    private _obtenerColumnasAgrupacion(): string {
+    private _obtenerColumnasAgrupacion(): any {
        
         try {
            
             var a = this.properties.columnasAgrupacion
+            a = a.replace(/'/g, '"');
+            a = JSON.parse(a);
+            return a;
+        } catch (error) {
+            console.error('Error parseando las columnas de agrupación:', error);
+            return;
+        }
+    }
+
+    private _obtenerColumnasFiltro(): any {
+       
+        try {
+           
+            var a = this.properties.camposAfiltrar
             a = a.replace(/'/g, '"');
             a = JSON.parse(a);
             return a;
@@ -118,6 +135,11 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                                     label: "Biblioteca de documentos",
                                     description: "Nombre de la biblioteca donde se encuentran los documentos",
                                     value: "Documentos Públicos"
+                                }),
+                                PropertyPaneTextField('camposAfiltrar', {
+                                    label: "Columnas a filtrar",
+                                    description: "Ejemplo de columnas a filtrar, Sólo de tipo texto: [\"FileLeafRef\", \"Title\"]",
+                                    value: "[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
                                 })
                             ]
                         }

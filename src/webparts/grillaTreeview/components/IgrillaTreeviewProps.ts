@@ -3,4 +3,5 @@ export interface IgrillaTreeviewProps {
   columnas: any;             // Campos a mostrar, separados por comas
   columnaAgrupacion: any;
   biblioteca: string;  
+  camposAfiltrar:any;
 }

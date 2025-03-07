@@ -10,7 +10,7 @@ export interface ISPServices {
 
  
    obtenerDocumentos(startRow: number, rowsPerPage: number,
-       columnas: IColumnConfig[], biblioteca: string, ordenColumna: string, direccionOrden: string,filtro:string): Promise<any[]>;
+       columnas: IColumnConfig[], biblioteca: string, ordenColumna: string, direccionOrden: string,filtro:string,camposAfiltrar:any): Promise<any[]>;
     buscarDocumentos(queryText: string, startRow: number, rowsPerPage: number, columnas: IColumnConfig[], biblioteca: string)
     
 
