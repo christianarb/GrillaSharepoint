@@ -23,6 +23,7 @@ export interface IgrillaTreeviewWebPartProps {
     columnasAgrupacion: string; // Nuevo prop para las columnas de agrupación
     biblioteca: string;
     camposAfiltrar:string;
+    ordenamiento:string;
 }
 
 export default class grillaTreeviewWebPart extends BaseClientSideWebPart<IgrillaTreeviewWebPartProps> {
@@ -43,6 +44,8 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                     const columnasConfig: IColumnConfig = this._obtenerColumnas(this.properties.columnas);
                     const columnasAgrupacionConfig: any = this._obtenerColumnasAgrupacion(); // Obtener columnas de agrupación
                     const camposAfiltrar: any = this._obtenerColumnasFiltro();
+                    const ordenamiento: any = this._obtenerOrdenamiento();
+
                     const element: React.ReactElement<IgrillaTreeviewProps> = React.createElement(
                         grillaTreeview,
                         {
@@ -50,7 +53,8 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                             columnas: columnasConfig,
                             columnaAgrupacion: columnasAgrupacionConfig, // Pasar las columnas de agrupación
                             biblioteca: this.properties.biblioteca,
-                            camposAfiltrar: camposAfiltrar
+                            camposAfiltrar: camposAfiltrar,
+                            ordenamiento: ordenamiento
                             
                         }
                     );
@@ -85,7 +89,7 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
             return a;
         } catch (error) {
             console.error('Error parseando las columnas de agrupación:', error);
-            return;
+            return [];
         }
     }
 
@@ -99,10 +103,26 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
             return a;
         } catch (error) {
             console.error('Error parseando las columnas de agrupación:', error);
-            return;
+            return [];
         }
     }
 
+    private _obtenerOrdenamiento(): any {
+       
+        try {
+           
+            var a = this.properties.ordenamiento
+            a = a.replace(/'/g, '"');
+            a = JSON.parse(a);
+            return a;
+        } catch (error) {
+            console.error('Error parseando las columnas de agrupación:', error);
+            return [];
+        }
+    }
+
+
+    
 
     protected onDispose(): void {
         ReactDom.unmountComponentAtNode(this.domElement);
@@ -140,7 +160,15 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                                     label: "Columnas a filtrar",
                                     description: "Ejemplo de columnas a filtrar, Sólo de tipo texto: [\"FileLeafRef\", \"Title\"]",
                                     value: "[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
-                                })
+                                }),
+                                PropertyPaneTextField('ordenamiento', {
+                                    label: "Ordenamiento de columnas (JSON)",
+                                    description: 'Ejemplo: [{ "internalName": "sgdBU", "orden": "asc" },{ "internalName": "sgdCompania", "orden": "asc" },{ "internalName": "sgdTipoDocumento", "orden": "asc" }]',
+                                    value: "[{ \"internalName\": \"sgdBU\", \"orden\": \"asc\" }, { \"internalName\": \"sgdCompania\", \"orden\": \"asc\" }, { \"internalName\": \"sgdTipoDocumento\", \"orden\": \"asc\" }]"
+                                }),
+                                
+
+
                             ]
                         }
                     ]

@@ -42,13 +42,27 @@ export class spservices implements ISPServices {
     rowsPerPage: number,
     columnas: IColumnConfig[],
     bibliotecaRelativa: string, // Ahora recibe la ruta RELATIVA de la biblioteca
-    ordenColumna: string,
-    direccionOrden: string,
+    ordenColumna: any[],
     filtro:string,
     camposAfiltrar:any
 ): Promise<any[]> {
+
+
+
+  
+
  
-    const columnasSeleccionadas = columnas.map(col => col.internalName).join(',');
+
+    const colimnasOrdenadas = ordenColumna.map(campo => 
+      `${campo.internalName} ${campo.orden}`
+  ).join(", ");
+
+
+    const setColumnas = new Set(columnas.map(col => col.internalName));
+    // Agregar solo los elementos que no existen en columnas
+    const nuevasColumnas = [...columnas, ...ordenColumna.filter(col => !setColumnas.has(col.internalName))];
+
+    const columnasSeleccionadas = nuevasColumnas.map(col => col.internalName).join(',');
     let skipToken = "";
 
 
@@ -58,8 +72,12 @@ export class spservices implements ISPServices {
     skipToken = `&$skiptoken=Paged=TRUE&p_ID=${startRow}`;
       }
 
+        
+
+      console.log("Columnas: " + columnasSeleccionadas)
+
       const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
-      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${ordenColumna} ${direccionOrden}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
+      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${colimnasOrdenadas}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
 
       if (filtro) { 
           // Codifica el término de búsqueda para evitar errores en la consulta OData
@@ -78,6 +96,7 @@ export class spservices implements ISPServices {
 
     
     try {
+        console.log(url);
         const response: SPHttpClientResponse = await this.context.spHttpClient.get(url, SPHttpClient.configurations.v1);
         const data = await response.json();
 

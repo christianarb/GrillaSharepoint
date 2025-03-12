@@ -11,7 +11,8 @@ export default class grillaTreeview extends React.Component<IgrillaTreeviewProps
       columnas,
       columnaAgrupacion,
       biblioteca,
-      camposAfiltrar
+      camposAfiltrar,
+      ordenamiento
     } = this.props;
 
     return (       
@@ -19,6 +20,7 @@ export default class grillaTreeview extends React.Component<IgrillaTreeviewProps
       columnas={columnas} 
       columnasAgrupacion={columnaAgrupacion} 
       camposAfiltrar={camposAfiltrar}
+      ordenamiento={ordenamiento}
       biblioteca={biblioteca}></GrillaComponente>     
  
   );

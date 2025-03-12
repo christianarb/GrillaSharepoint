@@ -7,7 +7,7 @@ import { Folder, FolderOpen, FileText, Search } from 'lucide-react';
 import styles from './Grilla.module.scss';
 import { spservices } from "../../../SPServices/spservices";
 import { createTheme, ThemeProvider } from '@fluentui/react';
-import { useTable, usePagination } from 'react-table';
+import { useTable, usePagination,useSortBy  } from 'react-table';
 
 const theme = createTheme({
     fonts: {
@@ -41,6 +41,7 @@ interface GrillaDocumentosProps {
     ordenColumna?: string;
     direccionOrden?: string;
     camposAfiltrar:string[];
+    ordenamiento: any[];
 }
 
 export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
@@ -48,9 +49,8 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     columnas,
     columnasAgrupacion,
     biblioteca,
-    ordenColumna = 'LinkFilename',
-    direccionOrden = 'asc',
-    camposAfiltrar
+    camposAfiltrar,
+    ordenamiento
 }) => {
     debugger;
 
@@ -99,8 +99,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                 totalDeRegistros,
                 columnas,
                 biblioteca,
-                ordenColumna,
-                direccionOrden,
+                ordenamiento,
                 searchTerm,
                 camposAfiltrar
             );
@@ -175,39 +174,19 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
             });
 
             // Ordenar los grupos por su clave de agrupación (puedes cambiar esto si necesitas otro criterio)
-            return grupos.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar por nombre
+            return grupos; //.sort((a, b) => a.name.localeCompare(b.name)); // Ordenar por nombre
         };
 
         // Iniciar la agrupación recursiva
         const gruposRaiz = crearGruposRecursivos(documentos, columnasAgrupacion, 0, 0);
         
         // Ordenar los grupos raíz por su nombre
-        gruposRaiz.sort((a, b) => a.name.localeCompare(b.name));
+       // gruposRaiz.sort((a, b) => a.name.localeCompare(b.name));
 
         // Añadir los grupos raíz a la lista de grupos
         groups.push(...gruposRaiz);
 
-        // Ordenar todos los grupos (primer, segundo y tercer nivel) por su nivel
-        function ordenarGrupos(grupos: IGroup[]): IGroup[] {
-            return grupos
-                .sort((a, b) => a.level - b.level) // Primero por nivel
-                .map(group => {
-                    if (group.children) {
-                        // Si tiene subgrupos, ordenar también recursivamente
-                        group.children = ordenarGrupos(group.children);
-                    }
-                    return group;
-                });
-        }
-
-        // Aplicar el ordenamiento a todos los grupos
-        groups.sort((a, b) => a.level - b.level); // Ordenar los grupos por nivel (primer, segundo, tercer nivel)
-        groups.forEach(group => {
-            if (group.children) {
-                group.children = ordenarGrupos(group.children);
-            }
-        });
-
+      
         return { items, groups };
 
     }, [documentos, columnasAgrupacion,expandedGroups]); // Solo volver a calcular si cambian los documentos o columnas
@@ -296,8 +275,8 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
 
 
 
-// Componente DataTable para renderizar la tabla y manejar la paginación
 const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({ data, columnas }) => {
+    // Define las columnas para la tabla
     const columns = React.useMemo(
         () => columnas.map(col => ({
             Header: col.displayName,
@@ -306,6 +285,7 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
         [columnas]
     );
 
+    // Usa el hook useTable con paginación y ordenación
     const {
         getTableProps,
         getTableBodyProps,
@@ -317,26 +297,49 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
         page,
         gotoPage,
         pageCount,
-        state: { pageIndex, pageSize },
+        state: { pageIndex, pageSize, sortBy },
+        getTableSortByProps, // Esto es importante para el ordenamiento
     } = useTable(
         {
             columns,
             data,
-            initialState: { pageIndex: 0, pageSize: 10},
+            initialState: { pageIndex: 0, pageSize: 10 },
         },
+        useSortBy,  // Agregar el hook useSortBy para manejar la ordenación
         usePagination
     );
 
     return (
         <div className={styles.dataTableWrapper}>
-            <table {...getTableProps()} className={styles.dataTable}>                
-            <tbody {...getTableBodyProps()}>
+            <table {...getTableProps()} className={styles.dataTable}>
+                <thead>
+                    {headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map(column => (
+                                <th
+                                    {...column.getHeaderProps(column.getSortByToggleProps())} // Hacer que los encabezados sean clickeables para ordenar
+                                    className={styles.tableHeaderCell}
+                                >
+                                    {column.render('Header')}
+                                    {/* Agregar un ícono de ordenación */}
+                                    <span>
+                                        {column.isSorted
+                                            ? column.isSortedDesc
+                                                ? ' 🔽'  // Orden descendente
+                                                : ' 🔼'  // Orden ascendente
+                                            : ''}
+                                    </span>
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
                     {page.map(row => {
                         prepareRow(row);
                         return (
                             <tr {...row.getRowProps()}>
                                 {row.cells.map(cell => {
-                                    debugger;
                                     const col = cell.column;
                                     return (
                                         <td {...cell.getCellProps()} className={styles.tableCell}>
@@ -393,12 +396,15 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
 const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
     if (props && props.group && props.group.level === columnasAgrupacion.length - 1) {
         debugger;
+        let datos = props.group.data.sort((a, b) => a.LinkFilename.localeCompare(b.LinkFilename));
+        
         return (
             <div className={styles.dataTableContainer}
                 style={{ '--nivel': props.group!.level } as React.CSSProperties}>
                 {/* Mostrar el DataTable solo si el grupo está expandido */}
                 {!props.group?.isCollapsed && (
-                    <DataTable data={props.group.data} columnas={columnas} />
+                   
+                    <DataTable data={datos} columnas={columnas} />
                 )}
             </div>
         );
@@ -458,8 +464,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                                 totalDeRegistros,
                                 columnas,
                                 biblioteca,
-                                ordenColumna,
-                                direccionOrden,
+                                ordenamiento,                            
                                 sanitizeSearchTerm(e.target.value),
                                 camposAfiltrar
                             );

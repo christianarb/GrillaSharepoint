@@ -4,4 +4,5 @@ export interface IgrillaTreeviewProps {
   columnaAgrupacion: any;
   biblioteca: string;  
   camposAfiltrar:any;
+  ordenamiento: any;
 }

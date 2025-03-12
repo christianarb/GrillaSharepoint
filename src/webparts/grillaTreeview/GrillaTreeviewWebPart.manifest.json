@@ -41,7 +41,8 @@
         "columnaAgrupador": "sgdBU",
         "biblioteca": "Documentos Públicos",
         "columnasAgrupacion":"[\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]",
-        "camposAfiltrar":"[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]"
+        "camposAfiltrar":"[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]",
+        "ordenamiento":"[{ \"internalName\": \"sgdBU\", \"orden\": \"asc\" }, { \"internalName\": \"sgdCompania\", \"orden\": \"asc\" }, { \"internalName\": \"sgdTipoDocumento\", \"orden\": \"asc\" }]"
       }
     }
   ]
