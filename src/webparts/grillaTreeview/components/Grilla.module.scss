@@ -161,14 +161,19 @@
 
 .tableHeaderCell {
   display: table-cell;
-  width: 90px; /* Mantén el mismo ancho que las celdas */
-  max-width: 90px !important;
-  min-width: 90px !important;
+  width: 110px; /* Mantén el mismo ancho que las celdas */
+  max-width: 110px !important;
+  min-width: 110px !important;
   padding: 8px;
   text-align: left;
   border-right: 1px solid #ddd;
   vertical-align: top;
-  color: #140a9a
+  color: #140a9a;
+
+  word-wrap: break-word; /* Permite que el texto se divida en varias líneas */
+  overflow-wrap: break-word; /* Alternativa para navegadores modernos */
+  white-space: normal; /* Permite que el texto se divida en líneas en lugar de permanecer en una sola */
+    
 }
 
 .tableHeaderCell:first-child {
@@ -186,9 +191,9 @@
 .tableCell {
 
   display: table-cell;
-  width: 90px; /* Mantén el mismo ancho que las celdas */
-  max-width: 90px !important;
-  min-width: 90px !important;
+  width: 110px; /* Mantén el mismo ancho que las celdas */
+  max-width: 110px !important;
+  min-width: 110px !important;
   padding: 8px;
   text-align: left;
   border-right: 1px solid #ddd;
