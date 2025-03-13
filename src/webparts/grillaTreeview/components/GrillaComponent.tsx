@@ -324,10 +324,8 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
         usePagination
     );
 
-    return (
-        <div className={styles.dataTableWrapper}>
-            <table {...getTableProps()} className={styles.dataTable}>
-                <thead>
+    /*
+    <thead>
                     {headerGroups.map(headerGroup => (
                         <tr {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
@@ -336,7 +334,7 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                                     className={styles.tableHeaderCell}
                                 >
                                     {column.render('Header')}
-                                    {/* Agregar un ícono de ordenación */}
+                              
                                     <span>
                                         {column.isSorted
                                             ? column.isSortedDesc
@@ -349,6 +347,13 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                         </tr>
                     ))}
                 </thead>
+    */
+
+    return (
+        <div className={styles.dataTableWrapper}>
+            <table {...getTableProps()} className={styles.dataTable}>
+            
+               
                 <tbody {...getTableBodyProps()}>
                     {page.map(row => {
                         prepareRow(row);
@@ -373,8 +378,9 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                                                     {getFileIcon(row.original[col.id])}
                                                     {row.original[col.id]}
                                                 </a>
-                                            ) : (
-                                                cell.render('Cell') || '-'
+                                            ) : 
+                                            (
+                                                formatDate(row.original[col.id],col.id) || '-'
                                             )}
                                         </td>
                                     );
@@ -406,6 +412,33 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
     );
 };
 
+const formatDate = (value,columna) => {
+    // Si el valor es null o undefined, devolver "-"
+    if (value === null || value === undefined) return '-';
+
+    // Si el valor es un número, devolverlo tal cual (esto evita que 0 se transforme en "-")
+    if (typeof value === 'number') return value;
+
+    // Si el valor no es un string, devolverlo sin modificaciones
+    //if (typeof value !== 'string') return value;
+
+    // Verifica si el valor es una fecha en formato ISO 8601
+    const isDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(value);
+    if (!isDate) return value; // Si no es una fecha ISO, devuelve el valor original
+
+    // Convierte a objeto Date y valida si es una fecha válida
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return value; // Si no es una fecha válida, devuelve el valor original
+
+    // Formatea la fecha a dd/MM/yyyy
+    return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+};
+
+
 
 // onRenderFooter para mostrar el DataTable solo si el grupo está expandido
 const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
@@ -414,12 +447,15 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
         let datos = props.group.data.sort((a, b) => a.LinkFilename.localeCompare(b.LinkFilename));
         
         return (
-            <div className={styles.dataTableContainer}
+            <div className={styles.ultimoNivel}
                 style={{ '--nivel': props.group!.level } as React.CSSProperties}>
                 {/* Mostrar el DataTable solo si el grupo está expandido */}
                 {!props.group?.isCollapsed && (
-                   
-                    <DataTable data={datos} columnas={columnas} />
+                   // <div style={{ overflowX: 'auto', width: '100%' }}>
+                       // <div style={{  width: '800px' }}>
+                            <DataTable data={datos} columnas={columnas} />
+                       // </div>
+                   // </div>
                 )}
             </div>
         );

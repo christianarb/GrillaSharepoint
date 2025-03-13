@@ -16,12 +16,16 @@ export default class grillaTreeview extends React.Component<IgrillaTreeviewProps
     } = this.props;
 
     return (       
-      <GrillaComponente  SpContext={SpContext} 
-      columnas={columnas} 
-      columnasAgrupacion={columnaAgrupacion} 
-      camposAfiltrar={camposAfiltrar}
-      ordenamiento={ordenamiento}
-      biblioteca={biblioteca}></GrillaComponente>     
+      <div style={{ overflowX: 'auto', width: '100%' }}>
+        <div style={{  width: '1200px' }}>
+        <GrillaComponente  SpContext={SpContext} 
+        columnas={columnas} 
+        columnasAgrupacion={columnaAgrupacion} 
+        camposAfiltrar={camposAfiltrar}
+        ordenamiento={ordenamiento}
+        biblioteca={biblioteca}></GrillaComponente>    
+      </div> 
+      </div>
  
   );
 

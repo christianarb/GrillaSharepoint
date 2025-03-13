@@ -14,6 +14,7 @@
 }
 
 .searchBar {
+  width: 33%; /* Ocupa el 25% del ancho de la página */
   display: flex;
   align-items: center;
 }
@@ -24,7 +25,8 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 8px;
-  width: 300px;
+  min-width: 300px; /* Opcional, define un ancho mínimo */
+  max-width: 600px; /* Opcional, define un ancho máximo */
 }
 
 .searchButton {
@@ -61,20 +63,14 @@
 }
 
 .tableHeader {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  display: table;
+ 
   background-color: #f3f2f1;
   border-bottom: 1px solid #ddd;
   font-weight: bold;
-  padding: 8px 0;
-  align-items: center;
 }
 
-.tableHeaderCell {
-  padding: 4px 12px;
-  text-align: left;
-  color: #140a9a
-}
+
 
 
 .groupHeader {
@@ -101,10 +97,6 @@
     align-items: center;
 }
 
-.tableCell {
-    padding: 4px 8px;
-    text-align: left;
-}
 
 
 
@@ -148,6 +140,13 @@
   margin-left: calc(var(--nivel, 0) * 20px);
 
 }
+.ultimoNivel {
+
+  background-color: white;
+
+  margin-left: calc(var(--nivel, 0) * 20px);
+
+}
 
 
 .dataTableWrapper {
@@ -161,18 +160,43 @@
 }
 
 .tableHeaderCell {
-  padding: 10px;
+  display: table-cell;
+  width: 90px; /* Mantén el mismo ancho que las celdas */
+  max-width: 90px !important;
+  min-width: 90px !important;
+  padding: 8px;
   text-align: left;
-  background-color: #f4f4f4;
-  font-weight: bold;
-  border-bottom: 2px solid #ddd;
+  border-right: 1px solid #ddd;
+  vertical-align: top;
+  color: #140a9a
+}
+
+.tableHeaderCell:first-child {
+  width: 230px; /* Doble del tamaño normal */
+  max-width: 230px !important;
+  min-width: 230px !important;
+}
+
+.tableCell:first-child {
+    width: 210px !important; /* Fuerza el tamaño */
+    max-width: 210px !important;
+    min-width: 210px !important;
 }
 
 .tableCell {
-  padding: 10px;
+
+  display: table-cell;
+  width: 90px; /* Mantén el mismo ancho que las celdas */
+  max-width: 90px !important;
+  min-width: 90px !important;
+  padding: 8px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  vertical-align: top;
+
 }
+
+
 
 .paginationControls {
   margin-top: 10px;
