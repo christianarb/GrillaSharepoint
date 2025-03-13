@@ -36,6 +36,28 @@ export class spservices implements ISPServices {
     spservices.SPContext = this.context
   }
 
+  public async ObetenerColumnas(bibliotecaRelativa:string): Promise<any[]> {
+
+    try {
+    
+      debugger;
+      const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
+      let  url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/fields?$select=Title,InternalName`
+      const response: SPHttpClientResponse = await this.context.spHttpClient.get(url, SPHttpClient.configurations.v1);
+      const data = await response.json();
+
+      if (data.value && data.value.length > 0) {
+          return data.value;
+      } else {
+          return [];
+      }
+
+  } catch (error) {
+      console.error("Error al obtener documentos:", error);
+      return [];
+  }
+
+  }
   
   public async obtenerDocumentos(
     startRow: number,
@@ -44,25 +66,35 @@ export class spservices implements ISPServices {
     bibliotecaRelativa: string, // Ahora recibe la ruta RELATIVA de la biblioteca
     ordenColumna: any[],
     filtro:string,
-    camposAfiltrar:any
+    camposAfiltrar:any,
+    columnaAgrupacion:any
 ): Promise<any[]> {
 
 
 
   
-
+    debugger;
  
 
-    const colimnasOrdenadas = ordenColumna.map(campo => 
-      `${campo.internalName} ${campo.orden}`
-  ).join(", ");
+    const colimnasOrdenadas = ordenColumna.map(campo =>       `${campo.internalName} ${campo.orden}`  ).join(", ");
 
 
     const setColumnas = new Set(columnas.map(col => col.internalName));
-    // Agregar solo los elementos que no existen en columnas
     const nuevasColumnas = [...columnas, ...ordenColumna.filter(col => !setColumnas.has(col.internalName))];
+    const columnasSeleccionadas = nuevasColumnas.map(col => col.internalName); //.join(',');
 
-    const columnasSeleccionadas = nuevasColumnas.map(col => col.internalName).join(',');
+
+    const setColumnas1 = new Set(columnasSeleccionadas.map(col => col));
+    const nuevasColumnas1 = [...columnasSeleccionadas, ...columnaAgrupacion.filter(col => !setColumnas1.has(col))];
+    const columnasSeleccionadas1 = nuevasColumnas1.map(col => col).join(',');
+
+
+
+
+
+
+
+
     let skipToken = "";
 
 
@@ -77,7 +109,7 @@ export class spservices implements ISPServices {
       console.log("Columnas: " + columnasSeleccionadas)
 
       const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
-      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${colimnasOrdenadas}&$select=File/ServerRelativeUrl,${columnasSeleccionadas}&${skipToken}`;
+      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${colimnasOrdenadas}&$select=File/ServerRelativeUrl,${columnasSeleccionadas1}&${skipToken}`;
 
       if (filtro) { 
           // Codifica el término de búsqueda para evitar errores en la consulta OData

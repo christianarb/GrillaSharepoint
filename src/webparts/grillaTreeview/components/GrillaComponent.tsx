@@ -62,7 +62,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     const [error, setError] = useState<string | null>(null);
     const totalDeRegistros = 4999;
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set()); // Usar un Set para manejar los grupos expandidos
-
+    const [columnasListas, setColumnasListas] = useState<any[]>([]);
     
 
     const selection = new Selection();
@@ -101,9 +101,15 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                 biblioteca,
                 ordenamiento,
                 searchTerm,
-                camposAfiltrar
+                camposAfiltrar,
+                columnasAgrupacion
             );
             setDocumentos(resultados);
+            debugger;
+            const campos = await _services.ObetenerColumnas(biblioteca);
+            setColumnasListas(campos);
+            console.log(campos);
+
         } catch (error) {
             console.error('Error loading documents:', error);
             setError('Error loading documents. Please try again later.');
@@ -137,6 +143,8 @@ const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } =
         // Función recursiva para crear los grupos
         const crearGruposRecursivos = (docs: Documento[], campos: string[], campoIndex: number, nivel: number, parentKey: string = ''): IGroup[] => {
             // Si hemos agotado los campos, terminamos la recursión
+           
+            
             if (campoIndex >= campos.length) return [];
 
             const campoActual = campos[campoIndex];
@@ -207,7 +215,14 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
 
         let datos = props.group.level;
         let agrupador = columnasAgrupacion[datos];
-        let campoAgrupador = columnas.filter(x => x.internalName == agrupador)[0];
+        let campoAgrupador = columnas.filter(x => x.internalName == agrupador);
+
+        let titeloAgrupador = '';
+        if(campoAgrupador.length == 0){
+            titeloAgrupador = columnasListas.filter(x => x.InternalName== agrupador)[0].Title; 
+        }else{
+            titeloAgrupador = campoAgrupador[0].displayName;
+        }
 
         // Ruta de la imagen
         const imagePath = props.group?.isCollapsed
@@ -225,7 +240,7 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
                 <img src={imagePath} alt={props.group?.isCollapsed ? 'Carpeta cerrada' : 'Carpeta abierta'} className={styles.groupIcon} />
 
                 <span>
-                    <div style={{ color: '#140a9a' }}>{campoAgrupador.displayName}: <strong style={{ color: '#444444', fontWeight: 'bold' }}>{props.group?.name} ({props.group?.count})</strong> 
+                    <div style={{ color: '#140a9a' }}>{titeloAgrupador}: <strong style={{ color: '#444444', fontWeight: 'bold' }}>{props.group?.name} ({props.group?.count})</strong> 
                     </div>                    
                 </span>
 
@@ -466,7 +481,8 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                                 biblioteca,
                                 ordenamiento,                            
                                 sanitizeSearchTerm(e.target.value),
-                                camposAfiltrar
+                                camposAfiltrar,
+                                columnasAgrupacion
                             );
                             setDocumentos(resultados);
                         }
