@@ -176,10 +176,34 @@
     
 }
 
+.tableHeaderCell2 {
+  display: table-cell;
+  width: 110px; /* Mantén el mismo ancho que las celdas */
+  max-width: 110px !important;
+  min-width: 110px !important;
+  padding: 8px;
+  text-align: left;
+  border-right: 1px solid #ddd;
+  vertical-align: top;
+  color: #140a9a;
+
+  word-wrap: break-word; /* Permite que el texto se divida en varias líneas */
+  overflow-wrap: break-word; /* Alternativa para navegadores modernos */
+  white-space: normal; /* Permite que el texto se divida en líneas en lugar de permanecer en una sola */
+    
+}
+
 .tableHeaderCell:first-child {
   width: 230px; /* Doble del tamaño normal */
   max-width: 230px !important;
   min-width: 230px !important;
+}
+
+
+.tableHeaderCell2:first-child {
+  width: 210px; /* Doble del tamaño normal */
+  max-width: 210px !important;
+  min-width: 210px !important;
 }
 
 .tableCell:first-child {

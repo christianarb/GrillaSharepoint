@@ -359,7 +359,7 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                             {headerGroup.headers.map(column => (
                                 <th
                                     {...column.getHeaderProps(column.getSortByToggleProps())} // Hacer que los encabezados sean clickeables para ordenar
-                                    className={styles.tableHeaderCell}
+                                    className={styles.tableHeaderCell2}
                                 >
                                     {column.render('Header')}
                               
