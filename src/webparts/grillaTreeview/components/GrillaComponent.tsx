@@ -352,6 +352,30 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
     return (
         <div className={styles.dataTableWrapper}>
             <table {...getTableProps()} className={styles.dataTable}>
+
+            <thead>
+                    {headerGroups.map(headerGroup => (
+                        <tr {...headerGroup.getHeaderGroupProps()}>
+                            {headerGroup.headers.map(column => (
+                                <th
+                                    {...column.getHeaderProps(column.getSortByToggleProps())} // Hacer que los encabezados sean clickeables para ordenar
+                                    className={styles.tableHeaderCell}
+                                >
+                                    {column.render('Header')}
+                              
+                                    <span>
+                                        {column.isSorted
+                                            ? column.isSortedDesc
+                                                ? ' 🔽'  // Orden descendente
+                                                : ' 🔼'  // Orden ascendente
+                                            : ''}
+                                    </span>
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+            
             
                
                 <tbody {...getTableBodyProps()}>
