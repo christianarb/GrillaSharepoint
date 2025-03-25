@@ -113,7 +113,7 @@ export class spservices implements ISPServices {
 
       if (filtro) { 
           // Codifica el término de búsqueda para evitar errores en la consulta OData
-          const encodedSearchTerm = encodeURIComponent(filtro);
+          const encodedSearchTerm = filtro; //encodeURIComponent(filtro);
           
           // Generar filtros dinámicos basados en los campos especificados
           const filtrosDinamicos = camposAfiltrar.map(campo => 

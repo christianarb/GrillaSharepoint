@@ -383,7 +383,7 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                                                 </a>
                                             ) : 
                                             (
-                                                formatDate(row.original[col.id],col.id) || '-'
+                                                formatDate(row.original[col.id],col.id)
                                             )}
                                         </td>
                                     );
@@ -421,6 +421,8 @@ const formatDate = (value,columna) => {
 
     // Si el valor es un número, devolverlo tal cual (esto evita que 0 se transforme en "-")
     if (typeof value === 'number') return value;
+
+    if (value === '0'  || value === 0) return value;
 
     // Si el valor no es un string, devolverlo sin modificaciones
     //if (typeof value !== 'string') return value;
@@ -494,8 +496,33 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
     const { items, groups } = agruparDocumentosDinamico();
 
     function sanitizeSearchTerm(term: string): string {
-        return encodeURIComponent(term.replace(/'/g, "''")); // Escapar comillas y codificar caracteres especiales
+        return term.replace(/'/g, "''")
+       // return encodeURIComponent(term.replace(/'/g, "''")); // Escapar comillas y codificar caracteres especiales
     }
+
+    const debounceTimeout = 1000; // Tiempo de espera en ms
+
+    useEffect(() => {
+        const debounceSearch = setTimeout(async () => {
+         // if (searchTerm.trim()) 
+            {
+            const startRow = (paginaActual - 1) * totalDeRegistros;
+            const resultados = await _services.obtenerDocumentos(
+              startRow,
+              totalDeRegistros,
+              columnas,
+              biblioteca,
+              ordenamiento,
+              sanitizeSearchTerm(searchTerm),
+              camposAfiltrar,
+              columnasAgrupacion
+            );
+            setDocumentos(resultados);
+          }
+        }, debounceTimeout);
+    
+        return () => clearTimeout(debounceSearch); // Limpiar timeout al cambiar el término de búsqueda
+      }, [searchTerm, paginaActual]);
      
     
 
@@ -509,24 +536,7 @@ const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
                         placeholder="Buscar un documento..."
                         className={styles.searchInput}
                         value={searchTerm}
-                        onChange={async (e)  => {
-                            debugger;
-                            setSearchTerm(e.target.value);
-                            const startRow = (paginaActual - 1) * totalDeRegistros;
-                            const resultados = await _services.obtenerDocumentos(
-                                startRow,
-                                totalDeRegistros,
-                                columnas,
-                                biblioteca,
-                                ordenamiento,                            
-                                sanitizeSearchTerm(e.target.value),
-                                camposAfiltrar,
-                                columnasAgrupacion
-                            );
-                            setDocumentos(resultados);
-                        }
-
-                        }
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                    
                 </div>
