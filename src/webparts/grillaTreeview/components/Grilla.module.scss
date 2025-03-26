@@ -197,6 +197,8 @@
   width: 230px; /* Doble del tamaño normal */
   max-width: 230px !important;
   min-width: 230px !important;
+  white-space: pre-wrap !important; /* Permite que el texto se ajuste a varias líneas */
+  word-break: break-word !important;/* Rompe palabras largas para evitar desbordamiento */
 }
 
 
@@ -204,12 +206,16 @@
   width: 210px; /* Doble del tamaño normal */
   max-width: 210px !important;
   min-width: 210px !important;
+  white-space: pre-wrap !important; /* Permite que el texto se ajuste a varias líneas */
+  word-break: break-word !important;/* Rompe palabras largas para evitar desbordamiento */
 }
 
 .tableCell:first-child {
     width: 210px !important; /* Fuerza el tamaño */
     max-width: 210px !important;
     min-width: 210px !important;
+    white-space: pre-wrap !important; /* Permite que el texto se ajuste a varias líneas */
+    word-break: break-word !important;/* Rompe palabras largas para evitar desbordamiento */
 }
 
 .tableCell {
@@ -222,6 +228,8 @@
   text-align: left;
   border-right: 1px solid #ddd;
   vertical-align: top;
+  white-space: pre-wrap !important; /* Permite que el texto se ajuste a varias líneas */
+  word-break: break-word !important;/* Rompe palabras largas para evitar desbordamiento */
 
 }
 
