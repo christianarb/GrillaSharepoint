@@ -154,7 +154,7 @@ const OpenFileOnline = (fileRelativeUrl) => {
     const extension = fileAbsoluteUrl.split('.').pop().toLowerCase();
     const encodedUrl = encodeURIComponent(fileAbsoluteUrl);
 
-    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']; 
+    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
     const pdfExtensions: any = ['pdf'];
 
     let viewerUrl;
