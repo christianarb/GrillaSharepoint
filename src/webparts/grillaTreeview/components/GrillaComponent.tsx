@@ -138,19 +138,33 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
 
 const OpenFileOnline = async (fileRelativeUrl) => {
     const webAbsoluteUrl = SpContext.pageContext.web.absoluteUrl;
-    const fullFileUrl = `${webAbsoluteUrl}${fileRelativeUrl}`;
+    const webServerRelativeUrl = SpContext.pageContext.web.serverRelativeUrl;
+
+    let finalRelativePath = fileRelativeUrl;
+
+    // 🧼 Eliminar duplicado de la ruta si ya incluye el prefijo del sitio
+    if (fileRelativeUrl.startsWith(webServerRelativeUrl)) {
+        finalRelativePath = fileRelativeUrl.substring(webServerRelativeUrl.length);
+    }
+
+    // 📌 Asegurarse que comience con /
+    if (!finalRelativePath.startsWith("/")) {
+        finalRelativePath = "/" + finalRelativePath;
+    }
+
+    const fullFileUrl = `${webAbsoluteUrl}${finalRelativePath}`;
     const extension = fullFileUrl.split('.').pop().toLowerCase();
 
-    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'xlsb'];
-    const pdfExtensions: any = ['pdf'];
+    const officeExtensions : any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'xlsb'];
+    const pdfExtensions : any = ['pdf'];
 
-    // 📑 Para PDF y otros → abrimos directamente
     if (!officeExtensions.includes(extension)) {
+        // PDFs o cualquier otro tipo se abre directamente
         window.open(fullFileUrl, '_blank');
         return;
     }
 
-    // 🧠 Para Office → obtener UniqueId y usar Doc.aspx
+    // Office → obtener UniqueId para usar Doc.aspx
     const apiUrl = `${webAbsoluteUrl}/_api/web/getfilebyserverrelativeurl('${fileRelativeUrl}')/ListItemAllFields?$select=UniqueId,FileLeafRef`;
 
     try {
@@ -168,13 +182,13 @@ const OpenFileOnline = async (fileRelativeUrl) => {
         const encodedFileName = encodeURIComponent(fileName);
 
         const docUrl = `${webAbsoluteUrl}/_layouts/15/Doc.aspx?sourcedoc=%7B${fileId}%7D&file=${encodedFileName}&action=default&mobileredirect=true`;
-
         window.open(docUrl, "_blank");
     } catch (error) {
-        console.error("❌ Error abriendo archivo Office:", error);
-        alert("No se pudo abrir el archivo. Verifica permisos o URL.");
+        console.error("❌ Error obteniendo metadata para Doc.aspx:", error);
+        alert("No se pudo abrir el archivo. Verifica la URL y permisos.");
     }
 };
+
 
 
 
