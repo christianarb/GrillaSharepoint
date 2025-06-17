@@ -137,37 +137,40 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
 };
 
 const OpenFileOnline = (fileRelativeUrl) => {
-    // Get the absolute URL of the current SharePoint web (site or subsite).
-    // Example: "https://demosdev365.sharepoint.com/sites/SIGSST"
     const webAbsoluteUrl = SpContext.pageContext.web.absoluteUrl;
-
-    // Get the server-relative URL of the current SharePoint web.
-    // Example: "/sites/SIGSST"
     const webServerRelativeUrl = SpContext.pageContext.web.serverRelativeUrl;
 
     let finalFileRelativePath = fileRelativeUrl;
 
-    // IMPORTANT: Check if the provided fileRelativeUrl already starts with the web's server-relative URL.
-    // If it does, remove that portion to avoid duplicating it when combined with webAbsoluteUrl.
-    // Example: If fileRelativeUrl is "/sites/SIGSST/docpub/file.pdf" and webServerRelativeUrl is "/sites/SIGSST",
-    // then finalFileRelativePath becomes "/docpub/file.pdf".
     if (fileRelativeUrl.startsWith(webServerRelativeUrl)) {
         finalFileRelativePath = fileRelativeUrl.substring(webServerRelativeUrl.length);
     }
 
-    // Ensure the final relative path starts with a '/' if it doesn't already.
-    // This is crucial for correctly forming a URL path.
-    finalFileRelativePath = finalFileRelativePath.startsWith('/') ? finalFileRelativePath : `/${finalFileRelativePath}`;
+    finalFileRelativePath = finalFileRelativePath.startsWith('/')
+        ? finalFileRelativePath
+        : `/${finalFileRelativePath}`;
 
-    // Construct the complete absolute URL of the file.
-    // Example: "https://demosdev365.sharepoint.com/sites/SIGSST" + "/docpub/Propósito,...pdf"
-    // Result: "https://demosdev365.sharepoint.com/sites/SIGSST/docpub/Propósito,...pdf" (correct)
     const fileAbsoluteUrl = `${webAbsoluteUrl}${finalFileRelativePath}`;
+    const extension = fileAbsoluteUrl.split('.').pop().toLowerCase();
+    const encodedUrl = encodeURIComponent(fileAbsoluteUrl);
 
-    // Redirect the browser to this absolute URL.
-    // SharePoint will then open the file in the appropriate online viewer
-    // (e.g., Office Online for Office documents, or the browser's PDF viewer for PDFs).
-    window.open(fileAbsoluteUrl);
+    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']; 
+    const pdfExtensions: any = ['pdf'];
+
+    let viewerUrl;
+
+    if (officeExtensions.includes(extension)) {
+        // Office Online Preview
+        viewerUrl = `${webAbsoluteUrl}/_layouts/15/WopiFrame.aspx?sourcedoc=${encodedUrl}&action=interactivepreview`;
+    } else if (pdfExtensions.includes(extension)) {
+        // PDF Viewer (nativo del navegador)
+        viewerUrl = fileAbsoluteUrl;
+    } else {
+        // Otro tipo de archivo → descarga directa o vista por navegador
+        viewerUrl = fileAbsoluteUrl;
+    }
+
+    window.open(viewerUrl, '_blank');
 };
 
 
