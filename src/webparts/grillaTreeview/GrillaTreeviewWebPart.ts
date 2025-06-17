@@ -24,6 +24,7 @@ export interface IgrillaTreeviewWebPartProps {
     biblioteca: string;
     camposAfiltrar:string;
     ordenamiento:string;
+    cantidadRegistros:string
 }
 
 export default class grillaTreeviewWebPart extends BaseClientSideWebPart<IgrillaTreeviewWebPartProps> {
@@ -40,11 +41,12 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
               .then(() => SPComponentLoader.loadScript(siteColUrl + '/_layouts/15/SP.js', { globalExportsName: 'SP' }))
               .then(() => {
                
-                    debugger;
+                  // debugger;
                     const columnasConfig: IColumnConfig = this._obtenerColumnas(this.properties.columnas);
                     const columnasAgrupacionConfig: any = this._obtenerColumnasAgrupacion(); // Obtener columnas de agrupación
                     const camposAfiltrar: any = this._obtenerColumnasFiltro();
                     const ordenamiento: any = this._obtenerOrdenamiento();
+                    const cantidadRegistros: any = this.properties.cantidadRegistros
 
                     const element: React.ReactElement<IgrillaTreeviewProps> = React.createElement(
                         grillaTreeview,
@@ -54,7 +56,8 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                             columnaAgrupacion: columnasAgrupacionConfig, // Pasar las columnas de agrupación
                             biblioteca: this.properties.biblioteca,
                             camposAfiltrar: camposAfiltrar,
-                            ordenamiento: ordenamiento
+                            ordenamiento: ordenamiento,
+                            cantidadRegistros: cantidadRegistros
                             
                         }
                     );
@@ -166,7 +169,12 @@ export default class grillaTreeviewWebPart extends BaseClientSideWebPart<Igrilla
                                     description: 'Ejemplo: [{ "internalName": "sgdBU", "orden": "asc" },{ "internalName": "sgdCompania", "orden": "asc" },{ "internalName": "sgdTipoDocumento", "orden": "asc" }]',
                                     value: "[{ \"internalName\": \"sgdBU\", \"orden\": \"asc\" }, { \"internalName\": \"sgdCompania\", \"orden\": \"asc\" }, { \"internalName\": \"sgdTipoDocumento\", \"orden\": \"asc\" }]"
                                 }),
-                                
+
+                                PropertyPaneTextField('cantidadRegistros', {
+                                    label: "Cantidad de registros por grupo",
+                                    description: "Número de registros que se mostrarán por grupo. Si se deja vacío, se mostrarán todos los registros.",
+                                    value: "30" // Valor por defecto
+                                }),
 
 
                             ]

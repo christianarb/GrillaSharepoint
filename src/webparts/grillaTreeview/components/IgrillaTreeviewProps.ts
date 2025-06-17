@@ -5,4 +5,5 @@ export interface IgrillaTreeviewProps {
   biblioteca: string;  
   camposAfiltrar:any;
   ordenamiento: any;
+  cantidadRegistros:any
 }

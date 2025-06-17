@@ -42,6 +42,7 @@ interface GrillaDocumentosProps {
     direccionOrden?: string;
     camposAfiltrar:string[];
     ordenamiento: any[];
+    cantidadRegistros: any;
 }
 
 export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
@@ -50,9 +51,10 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     columnasAgrupacion,
     biblioteca,
     camposAfiltrar,
-    ordenamiento
+    ordenamiento,
+    cantidadRegistros
 }) => {
-    debugger;
+  // debugger;
 
     const _services = new spservices(SpContext);
     const [documentos, setDocumentos] = useState<Documento[]>([]);
@@ -81,7 +83,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         };
 
     useEffect(() => {
-        debugger;
+      // debugger;
         cargarDocumentos(paginaActual);
     }, [paginaActual]);
 
@@ -89,7 +91,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
         setLoading(true);
         setError(null);
         try {
-            debugger;
+          // debugger;
             const startRow = (pagina - 1) * totalDeRegistros;
 
 
@@ -105,7 +107,7 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
                 columnasAgrupacion
             );
             setDocumentos(resultados);
-            debugger;
+          // debugger;
             const campos = await _services.ObetenerColumnas(biblioteca);
             setColumnasListas(campos);
             console.log(campos);
@@ -127,10 +129,45 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
 
   
   const DownloadFileDirect = (fileRelativeUrl) => {
-    debugger;
-    const tenantUrl = SpContext.pageContext.web.absoluteUrl;
+  // debugger;
+    OpenFileOnline(fileRelativeUrl);
+   /* const tenantUrl = SpContext.pageContext.web.absoluteUrl;
     const downloadUrl = `${tenantUrl}/_layouts/15/download.aspx?SourceUrl=${encodeURIComponent(fileRelativeUrl)}`;
-    window.location.href = downloadUrl; // Redirige al archivo para descargarlo
+    window.location.href = downloadUrl; // Redirige al archivo para descargarlo*/
+};
+
+const OpenFileOnline = (fileRelativeUrl) => {
+    // Get the absolute URL of the current SharePoint web (site or subsite).
+    // Example: "https://demosdev365.sharepoint.com/sites/SIGSST"
+    const webAbsoluteUrl = SpContext.pageContext.web.absoluteUrl;
+
+    // Get the server-relative URL of the current SharePoint web.
+    // Example: "/sites/SIGSST"
+    const webServerRelativeUrl = SpContext.pageContext.web.serverRelativeUrl;
+
+    let finalFileRelativePath = fileRelativeUrl;
+
+    // IMPORTANT: Check if the provided fileRelativeUrl already starts with the web's server-relative URL.
+    // If it does, remove that portion to avoid duplicating it when combined with webAbsoluteUrl.
+    // Example: If fileRelativeUrl is "/sites/SIGSST/docpub/file.pdf" and webServerRelativeUrl is "/sites/SIGSST",
+    // then finalFileRelativePath becomes "/docpub/file.pdf".
+    if (fileRelativeUrl.startsWith(webServerRelativeUrl)) {
+        finalFileRelativePath = fileRelativeUrl.substring(webServerRelativeUrl.length);
+    }
+
+    // Ensure the final relative path starts with a '/' if it doesn't already.
+    // This is crucial for correctly forming a URL path.
+    finalFileRelativePath = finalFileRelativePath.startsWith('/') ? finalFileRelativePath : `/${finalFileRelativePath}`;
+
+    // Construct the complete absolute URL of the file.
+    // Example: "https://demosdev365.sharepoint.com/sites/SIGSST" + "/docpub/Propósito,...pdf"
+    // Result: "https://demosdev365.sharepoint.com/sites/SIGSST/docpub/Propósito,...pdf" (correct)
+    const fileAbsoluteUrl = `${webAbsoluteUrl}${finalFileRelativePath}`;
+
+    // Redirect the browser to this absolute URL.
+    // SharePoint will then open the file in the appropriate online viewer
+    // (e.g., Office Online for Office documents, or the browser's PDF viewer for PDFs).
+    window.open(fileAbsoluteUrl);
 };
 
 
@@ -255,7 +292,7 @@ const onRenderHeader = (props?: IGroupHeaderProps): JSX.Element | null => {
 };
 
 const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: number , group?: IGroup): React.ReactNode => {
-    debugger;
+  // debugger;
 
     console.log(item);
     console.log(group);
@@ -276,7 +313,7 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
                             style={{ textDecoration: 'underline', color: 'blue', cursor:'pointer' }} // Estilos en línea
                         >
                             {getFileIcon(item[col.internalName])}
-                            {item[col.internalName]}
+                            {item["sgdNombreDocumento"]}
                         </a>
                     ): (
                         item[col.internalName] || '-'
@@ -291,6 +328,7 @@ const onRenderCell = (nestingDepth?: number, item?: Documento, itemIndex?: numbe
 
 
 const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({ data, columnas }) => {
+   debugger;
     // Define las columnas para la tabla
     const columns = React.useMemo(
         () => columnas.map(col => ({
@@ -318,9 +356,9 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
         {
             columns,
             data,
-            initialState: { pageIndex: 0, pageSize: 10 },
+            initialState: { pageIndex: 0, pageSize: parseInt(cantidadRegistros) || 30 }, // Configura el tamaño de página inicial
         },
-        useSortBy,  // Agregar el hook useSortBy para manejar la ordenación
+       // useSortBy,  // Agregar el hook useSortBy para manejar la ordenación
         usePagination
     );
 
@@ -379,7 +417,8 @@ const DataTable: React.FC<{ data: Documento[], columnas: IColumnConfig[] }> = ({
                                                     style={{ textDecoration: 'underline', color: 'blue', cursor: 'pointer' }}
                                                 >
                                                     {getFileIcon(row.original[col.id])}
-                                                    {row.original[col.id]}
+                                                    {row.original["sgdNombreDocumento"] == null ? 
+                                                        row.original[col.id]: row.original["sgdNombreDocumento"]}
                                                 </a>
                                             ) : 
                                             (
@@ -448,8 +487,8 @@ const formatDate = (value,columna) => {
 // onRenderFooter para mostrar el DataTable solo si el grupo está expandido
 const onRenderFooter = (props?: IGroupFooterProps): JSX.Element | null => {
     if (props && props.group && props.group.level === columnasAgrupacion.length - 1) {
-        debugger;
-        let datos = props.group.data.sort((a, b) => a.LinkFilename.localeCompare(b.LinkFilename));
+      // debugger;
+        let datos = props.group.data;//.sort((a, b) => a.LinkFilename.localeCompare(b.LinkFilename));
         
         return (
             <div className={styles.ultimoNivel}

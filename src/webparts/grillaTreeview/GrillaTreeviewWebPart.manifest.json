@@ -40,6 +40,7 @@
         "columnas": "[{\"internalName\": \"LinkFilename\", \"displayName\": \"Nombre\"}, {\"internalName\": \"sgdCompania\", \"displayName\": \"Compañía\"}, {\"internalName\": \"sgdBU\", \"displayName\": \"Unidad de Negocio\"}, {\"internalName\": \"sgdTipoDocumento\", \"displayName\": \"Tipo de Documento\"}]",
         "columnaAgrupador": "sgdBU",
         "biblioteca": "Documentos Públicos",
+        "cantidadRegistros": "30",
         "columnasAgrupacion":"[\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]",
         "camposAfiltrar":"[\"FileLeafRef\",\"Title\",\"sgdBU\",\"sgdCompania\",\"sgdTipoDocumento\"]",
         "ordenamiento":"[{ \"internalName\": \"sgdBU\", \"orden\": \"asc\" }, { \"internalName\": \"sgdCompania\", \"orden\": \"asc\" }, { \"internalName\": \"sgdTipoDocumento\", \"orden\": \"asc\" }]"

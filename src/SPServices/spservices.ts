@@ -40,7 +40,7 @@ export class spservices implements ISPServices {
 
     try {
     
-      debugger;
+    // debugger;
       const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
       let  url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/fields?$select=Title,InternalName`
       const response: SPHttpClientResponse = await this.context.spHttpClient.get(url, SPHttpClient.configurations.v1);
@@ -73,7 +73,7 @@ export class spservices implements ISPServices {
 
 
   
-    debugger;
+  // debugger;
  
 
     const colimnasOrdenadas = ordenColumna.map(campo =>       `${campo.internalName} ${campo.orden}`  ).join(", ");
@@ -109,7 +109,7 @@ export class spservices implements ISPServices {
       console.log("Columnas: " + columnasSeleccionadas)
 
       const baseUrl = this.context.pageContext.web.absoluteUrl; // URL base del sitio
-      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${colimnasOrdenadas}&$select=File/ServerRelativeUrl,${columnasSeleccionadas1}&${skipToken}`;
+      let url = `${baseUrl}/_api/web/lists/getbytitle('${bibliotecaRelativa}')/Items?$top=${rowsPerPage}&$expand=File&$orderby=${colimnasOrdenadas}&$select=sgdNombreDocumento,File/ServerRelativeUrl,${columnasSeleccionadas1}&${skipToken}`;
 
       if (filtro) { 
           // Codifica el término de búsqueda para evitar errores en la consulta OData
