@@ -136,42 +136,46 @@ export const GrillaComponente: React.FC<GrillaDocumentosProps> = ({
     window.location.href = downloadUrl; // Redirige al archivo para descargarlo*/
 };
 
-const OpenFileOnline = (fileRelativeUrl) => {
+const OpenFileOnline = async (fileRelativeUrl) => {
     const webAbsoluteUrl = SpContext.pageContext.web.absoluteUrl;
-    const webServerRelativeUrl = SpContext.pageContext.web.serverRelativeUrl;
+    const fullFileUrl = `${webAbsoluteUrl}${fileRelativeUrl}`;
+    const extension = fullFileUrl.split('.').pop().toLowerCase();
 
-    let finalFileRelativePath = fileRelativeUrl;
-
-    if (fileRelativeUrl.startsWith(webServerRelativeUrl)) {
-        finalFileRelativePath = fileRelativeUrl.substring(webServerRelativeUrl.length);
-    }
-
-    finalFileRelativePath = finalFileRelativePath.startsWith('/')
-        ? finalFileRelativePath
-        : `/${finalFileRelativePath}`;
-
-    const fileAbsoluteUrl = `${webAbsoluteUrl}${finalFileRelativePath}`;
-    const extension = fileAbsoluteUrl.split('.').pop().toLowerCase();
-    const encodedUrl = encodeURIComponent(fileAbsoluteUrl);
-
-    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
+    const officeExtensions: any = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'xlsb'];
     const pdfExtensions: any = ['pdf'];
 
-    let viewerUrl;
-
-    if (officeExtensions.includes(extension)) {
-        // Office Online Preview
-        viewerUrl = `${webAbsoluteUrl}/_layouts/15/WopiFrame.aspx?sourcedoc=${encodedUrl}&action=interactivepreview`;
-    } else if (pdfExtensions.includes(extension)) {
-        // PDF Viewer (nativo del navegador)
-        viewerUrl = fileAbsoluteUrl;
-    } else {
-        // Otro tipo de archivo → descarga directa o vista por navegador
-        viewerUrl = fileAbsoluteUrl;
+    // 📑 Para PDF y otros → abrimos directamente
+    if (!officeExtensions.includes(extension)) {
+        window.open(fullFileUrl, '_blank');
+        return;
     }
 
-    window.open(viewerUrl, '_blank');
+    // 🧠 Para Office → obtener UniqueId y usar Doc.aspx
+    const apiUrl = `${webAbsoluteUrl}/_api/web/getfilebyserverrelativeurl('${fileRelativeUrl}')/ListItemAllFields?$select=UniqueId,FileLeafRef`;
+
+    try {
+        const response = await fetch(apiUrl, {
+            headers: {
+                Accept: "application/json;odata=verbose"
+            }
+        });
+
+        if (!response.ok) throw new Error("No se pudo obtener metadata del archivo.");
+
+        const data = await response.json();
+        const fileId = data.d.UniqueId;
+        const fileName = data.d.FileLeafRef;
+        const encodedFileName = encodeURIComponent(fileName);
+
+        const docUrl = `${webAbsoluteUrl}/_layouts/15/Doc.aspx?sourcedoc=%7B${fileId}%7D&file=${encodedFileName}&action=default&mobileredirect=true`;
+
+        window.open(docUrl, "_blank");
+    } catch (error) {
+        console.error("❌ Error abriendo archivo Office:", error);
+        alert("No se pudo abrir el archivo. Verifica permisos o URL.");
+    }
 };
+
 
 
 const agruparDocumentosDinamico = (): { items: Documento[]; groups: IGroup[] } => {
